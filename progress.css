@@ -1,0 +1,886 @@
+/* =========================================================
+   progress.css  —  تنسيقات الميزات الإضافية (progress.js)
+   ملف مستقل: لا يغيّر أي قاعدة في style1.css، ويضيف فقط
+   أصنافاً جديدة تبدأ كلها بـ sp-
+   (الوضع الداكن في الموقع يقلب الألوان بفلتر على html،
+    لذلك لا حاجة لألوان خاصة به هنا)
+========================================================= */
+
+.sp-tools[hidden],
+.sp-tools [hidden] {
+    display: none !important;
+}
+
+
+/* ---------- الحاوية ---------- */
+
+.sp-tools {
+    display: grid;
+    gap: 16px;
+    width: min(1000px, 100%);
+    margin: 0 auto 26px;
+    text-align: right;
+}
+
+
+/* ---------- البحث ---------- */
+
+.sp-search {
+    position: relative;
+    z-index: 20;
+}
+
+.sp-search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.sp-search-icon {
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    transform: translateY(-50%);
+    color: #8290A8;
+    pointer-events: none;
+}
+
+.sp-search-input {
+    width: 100%;
+    padding: 14px 46px 14px 44px;
+
+    background-color: #ffffff;
+    color: #243B70;
+
+    border: 1px solid #DCE4F0;
+    border-radius: 14px;
+
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: right;
+
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.sp-search-input::placeholder {
+    color: #8290A8;
+    font-weight: 400;
+}
+
+.sp-search-input:focus {
+    outline: none;
+    border-color: #746BE3;
+    box-shadow: 0 0 0 4px rgba(116, 107, 227, 0.18);
+}
+
+.sp-search-clear {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+
+    width: 30px;
+    height: 30px;
+    padding: 0;
+
+    background: #F0EFFF;
+    color: #304A86;
+    border: none;
+    border-radius: 50%;
+
+    font-family: inherit;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.sp-search-clear:hover,
+.sp-search-clear:focus-visible {
+    background: #746BE3;
+    color: #ffffff;
+}
+
+.sp-search-list {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    left: 0;
+
+    max-height: 340px;
+    overflow-y: auto;
+
+    margin: 0;
+    padding: 6px;
+    list-style: none;
+
+    background: #ffffff;
+    border: 1px solid #DCE4F0;
+    border-radius: 14px;
+    box-shadow: 0 14px 34px rgba(36, 59, 112, 0.16);
+}
+
+.sp-search-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.sp-search-item:hover,
+.sp-search-item.is-active {
+    background: #F0EFFF;
+}
+
+.sp-search-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.sp-search-name {
+    color: #243B70;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.sp-search-meta {
+    color: #8290A8;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.sp-search-empty {
+    padding: 14px;
+    color: #8290A8;
+    font-size: 14px;
+    text-align: center;
+}
+
+.sp-badge {
+    flex-shrink: 0;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 11.5px;
+    font-weight: 700;
+}
+
+.sp-badge.done {
+    background: #DDF3E7;
+    color: #1F7A4D;
+}
+
+.sp-badge.available {
+    background: #FFF1C7;
+    color: #8A5A00;
+}
+
+
+/* ---------- لوحة التقدّم ---------- */
+
+.sp-progress {
+    background: #ffffff;
+    border: 1px solid #DCE4F0;
+    border-radius: 18px;
+    padding: 20px 22px;
+}
+
+.sp-progress-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    margin-bottom: 14px;
+}
+
+.sp-progress-title {
+    color: #243B70;
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.sp-progress-sub {
+    margin: 4px 0 0;
+    color: #8290A8;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.sp-btn {
+    background: #ffffff;
+    color: #304A86;
+    border: 1px solid #DCE4F0;
+    border-radius: 10px;
+    padding: 8px 14px;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.sp-btn:hover:not(:disabled),
+.sp-btn:focus-visible {
+    background: #E9E8FF;
+}
+
+.sp-btn:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.sp-btn.confirm {
+    background: #C0392B;
+    border-color: #C0392B;
+    color: #ffffff;
+}
+
+.sp-btn.confirm:hover {
+    background: #A93226;
+}
+
+.sp-bar {
+    position: relative;
+    height: 22px;
+    overflow: hidden;
+
+    background: #E9EEF7;
+    border-radius: 99px;
+}
+
+.sp-bar-fill {
+    height: 100%;
+    width: 0;
+
+    background: linear-gradient(270deg, #304A86, #746BE3);
+    border-radius: 99px;
+
+    transition: width 0.45s ease;
+}
+
+.sp-bar-pct {
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #243B70;
+    font-size: 12px;
+    font-weight: 700;
+
+    /* يبقى مقروءاً فوق الجزء الملوّن وخارجه */
+    text-shadow:
+        0 0 3px #ffffff,
+        0 0 3px #ffffff,
+        0 0 6px #ffffff;
+}
+
+.sp-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.sp-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+
+    padding: 12px 8px;
+
+    background: #F8FAFD;
+    border: 1px solid #E5EAF2;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.sp-stat-num {
+    color: #304A86;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.3;
+}
+
+.sp-stat-label {
+    color: #8290A8;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.sp-note {
+    margin: 12px 0 0;
+    color: #8290A8;
+    font-size: 12.5px;
+    line-height: 1.8;
+}
+
+
+/* ---------- مفتاح الألوان ---------- */
+
+.sp-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 18px;
+
+    color: #5B6B8C;
+    font-size: 12.5px;
+}
+
+.sp-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.sp-sw {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 5px;
+    background: #ffffff;
+    border: 2px solid #DCE4F0;
+}
+
+.sp-sw-done {
+    background: #E8F7EE;
+    border-color: #5BBE85;
+}
+
+.sp-sw-available {
+    border-color: #F5B301;
+    box-shadow: 0 0 0 2px rgba(245, 179, 1, 0.35);
+}
+
+.sp-sw-pre {
+    border-color: #2E86DE;
+}
+
+.sp-sw-next {
+    border-color: #E0457B;
+}
+
+
+/* ---------- شريط المسار المظلّل ---------- */
+
+.sp-pathbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+
+    padding: 10px 16px;
+
+    background: #F0EFFF;
+    border: 1px solid #C9C5FF;
+    border-radius: 12px;
+
+    color: #243B70;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+
+/* =========================================================
+   بطاقات المواد
+========================================================= */
+
+/* البطاقات غير المثبّتة بموقع مطلق تحتاج position ليتموضع عليها زر الإنجاز.
+   (بطاقات الخريطة الذهنية .mindmap-node مثبّتة أصلاً بـ absolute فلا نمسّها) */
+.year-course,
+.mini-course-card,
+.course-card:not(.mindmap-node) {
+    position: relative;
+}
+
+
+/* الدائرة في زاوية البطاقة لتعليم المادة كمنجزة */
+.sp-check {
+    position: absolute;
+    top: -9px;
+    right: -9px;
+    z-index: 4;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 22px;
+    height: 22px;
+
+    background: #ffffff;
+    color: transparent;
+    border: 2px solid #B7C2D8;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(36, 59, 112, 0.18);
+
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
+
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.sp-check::before {
+    content: "\2713";
+}
+
+/* منطقة لمس أكبر من الدائرة نفسها */
+.sp-check::after {
+    content: "";
+    position: absolute;
+    inset: -9px;
+}
+
+.sp-check:hover,
+.sp-check:focus-visible {
+    border-color: #2FA866;
+    color: #8FD3AE;
+    outline: none;
+}
+
+.sp-check:focus-visible {
+    box-shadow: 0 0 0 3px rgba(47, 168, 102, 0.35);
+}
+
+.sp-check[aria-checked="true"] {
+    background: #2FA866;
+    border-color: #2FA866;
+    color: #ffffff;
+}
+
+
+/* منجزة */
+.course-card.sp-done:not(.active):not(:hover),
+.year-course.sp-done:not(:hover),
+.mini-course-card.sp-done:not(:hover) {
+    background-color: #E8F7EE;
+    border-color: #5BBE85;
+}
+
+.sp-done .course-hours {
+    color: #3C8F63;
+}
+
+
+/* متاحة الآن: هالة ذهبية + كلمة صغيرة (حتى لا يعتمد المعنى على اللون وحده) */
+.sp-available {
+    border-color: #F5B301 !important;
+    box-shadow:
+        0 0 0 3px rgba(245, 179, 1, 0.38),
+        0 0 14px rgba(245, 179, 1, 0.4);
+}
+
+.sp-available::before {
+    content: "متاحة";
+
+    position: absolute;
+    bottom: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 4;
+
+    padding: 0 8px;
+
+    background: #F5B301;
+    color: #4A3300;
+    border-radius: 99px;
+
+    font-size: 10.5px;
+    font-weight: 700;
+    line-height: 17px;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+
+/* مسار المادة المختارة */
+.sp-pre,
+.sp-next {
+    outline: 3px solid transparent;
+    outline-offset: 2px;
+}
+
+.sp-pre {
+    outline-color: #2E86DE;
+}
+
+.sp-next {
+    outline-color: #E0457B;
+}
+
+.sp-pre::after,
+.sp-next::after {
+    position: absolute;
+    top: -9px;
+    left: 10px;
+    z-index: 4;
+
+    padding: 0 8px;
+
+    color: #ffffff;
+    border-radius: 99px;
+
+    font-size: 10.5px;
+    font-weight: 700;
+    line-height: 17px;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.sp-pre::after {
+    content: "قبلها";
+    background: #2E86DE;
+}
+
+.sp-next::after {
+    content: "بعدها";
+    background: #E0457B;
+}
+
+.sp-dim {
+    opacity: 0.3;
+}
+
+/* خطوط الاتصال على المسار */
+.mindmap-link.sp-edge-pre {
+    stroke: #2E86DE;
+    stroke-width: 3.5;
+}
+
+.mindmap-link.sp-edge-next {
+    stroke: #E0457B;
+    stroke-width: 3.5;
+}
+
+.mindmap-link.sp-edge-dim {
+    opacity: 0.28;
+}
+
+
+/* وميض قصير للمادة التي قفز لها البحث */
+@keyframes sp-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(116, 107, 227, 0.75); }
+    70%  { box-shadow: 0 0 0 18px rgba(116, 107, 227, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(116, 107, 227, 0); }
+}
+
+.sp-pulse {
+    animation: sp-pulse 0.9s ease-out 2;
+}
+
+
+/* =========================================================
+   لوحة تفاصيل المادة
+========================================================= */
+
+.sp-extras {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+
+    max-width: 680px;
+    margin: 16px auto;
+    padding: 16px;
+
+    background: #F8FAFD;
+    border: 1px solid #E5EAF2;
+    border-radius: 14px;
+}
+
+.sp-done-btn {
+    padding: 10px 22px;
+
+    background: #ffffff;
+    color: #1F7A4D;
+    border: 2px solid #2FA866;
+    border-radius: 99px;
+
+    font-family: inherit;
+    font-size: 14.5px;
+    font-weight: 700;
+    cursor: pointer;
+
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.sp-done-btn:hover,
+.sp-done-btn:focus-visible {
+    background: #E8F7EE;
+}
+
+.sp-done-btn.is-done {
+    background: #2FA866;
+    color: #ffffff;
+}
+
+.sp-done-btn.is-done:hover,
+.sp-done-btn.is-done:focus-visible {
+    background: #278F57;
+}
+
+.sp-status,
+.sp-chain {
+    margin: 0;
+    color: #5B6B8C;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.sp-status-available {
+    color: #8A5A00;
+    font-weight: 600;
+}
+
+.sp-status-done {
+    color: #1F7A4D;
+    font-weight: 600;
+}
+
+.sp-prereq {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.sp-prereq-label {
+    color: #8290A8;
+    font-size: 13px;
+}
+
+.sp-chip {
+    padding: 5px 12px;
+
+    border-radius: 99px;
+    border: 1px solid #DCE4F0;
+    background: #ffffff;
+    color: #304A86;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.sp-chip.ok {
+    background: #E8F7EE;
+    border-color: #5BBE85;
+    color: #1F7A4D;
+}
+
+.sp-chip:hover,
+.sp-chip:focus-visible {
+    border-color: #746BE3;
+}
+
+
+/* =========================================================
+   الشاشات الصغيرة
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .sp-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .sp-progress {
+        padding: 16px;
+    }
+
+    .sp-bar-pct {
+        font-size: 11px;
+    }
+
+    .sp-legend {
+        justify-content: flex-start;
+    }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+
+    .sp-bar-fill {
+        transition: none;
+    }
+
+    .sp-pulse {
+        animation: none;
+        outline: 3px solid #746BE3;
+    }
+}
+
+.sp-hours-req {
+    margin: 0;
+    color: #8A5A00;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+
+/* =========================================================
+   قائمة المواد المنجزة (تُفتح بالضغط على بطاقتي الإحصاء)
+========================================================= */
+
+.sp-stat-btn {
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+.sp-stat-btn:hover,
+.sp-stat-btn:focus-visible,
+.sp-stat-btn[aria-expanded="true"] {
+    border-color: #746BE3;
+    background: #F0EFFF;
+}
+
+.sp-stat-hint {
+    margin-top: 2px;
+    color: #746BE3;
+    font-size: 11.5px;
+    font-weight: 600;
+}
+
+.sp-done-list {
+    max-height: 420px;
+    overflow-y: auto;
+
+    margin-top: 14px;
+    padding: 6px 14px 12px;
+
+    background: #F8FAFD;
+    border: 1px solid #E5EAF2;
+    border-radius: 14px;
+}
+
+.sp-done-empty {
+    margin: 10px 0;
+    color: #8290A8;
+    font-size: 14px;
+    text-align: center;
+}
+
+.sp-done-group {
+    margin-top: 10px;
+}
+
+.sp-done-group-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+
+    padding: 6px 2px;
+    border-bottom: 1px solid #E5EAF2;
+}
+
+.sp-done-group-title {
+    color: #243B70;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.sp-done-group-sum {
+    color: #8290A8;
+    font-size: 12.5px;
+}
+
+.sp-done-items {
+    margin: 4px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.sp-done-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 2px;
+}
+
+.sp-done-name {
+    flex: 1;
+    min-width: 0;
+    padding: 4px 0;
+
+    background: none;
+    border: none;
+    color: #243B70;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: right;
+    cursor: pointer;
+}
+
+.sp-done-name::before {
+    content: "✓ ";
+    color: #2FA866;
+}
+
+.sp-done-name:hover,
+.sp-done-name:focus-visible {
+    color: #746BE3;
+}
+
+.sp-done-hours {
+    flex-shrink: 0;
+    color: #8290A8;
+    font-size: 12.5px;
+}
+
+.sp-done-remove {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+
+    background: #ffffff;
+    color: #8290A8;
+    border: 1px solid #DCE4F0;
+    border-radius: 50%;
+
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.sp-done-remove:hover,
+.sp-done-remove:focus-visible {
+    background: #C0392B;
+    border-color: #C0392B;
+    color: #ffffff;
+}
+
+.sp-done-total {
+    margin: 12px 0 0;
+    padding-top: 10px;
+    border-top: 1px solid #E5EAF2;
+
+    color: #304A86;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+}

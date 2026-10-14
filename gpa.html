@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+<script>
+/* مفتاح إغلاق الموقع: true = مقفل | false = شغّال */
+(function () {
+  var CLOSED = false;
+  if (!CLOSED) return;
+  document.open();
+  document.write(
+    '<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8">' +
+    '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+    '<title>الموقع متوقف مؤقتًا</title></head>' +
+    '<body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;' +
+    'background:#F5F7FB;color:#243B70;font-family:Tahoma,Arial,sans-serif;text-align:center;padding:20px">' +
+    '<div><h1>الموقع متوقف مؤقتًا</h1><p>سيعود قريبًا إن شاء الله.</p></div>' +
+    '<' + '/body></' + 'html>'
+  );
+  document.close();
+  window.stop();
+})();
+</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>حاسبة المعدل</title>
+
+    <link rel="stylesheet" href="style1.css">
+    <link rel="stylesheet" href="tools.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        try {
+            if (localStorage.getItem("theme") === "dark") {
+                document.documentElement.classList.add("dark");
+            }
+        } catch (e) {}
+    </script>
+</head>
+
+<body>
+    <!-- Page loader -->
+    <div id="page-loader" aria-live="polite" aria-busy="true">
+        <div class="loader-box">
+            <div class="loader-ring"></div>
+            <span class="loader-star">✦</span>
+        </div>
+        <p>جاري التحميل...</p>
+    </div>
+
+
+    <!-- Header -->
+    <header>
+
+        <div class="logo">
+            <span class="logo-icon">✦</span>
+
+            <div>
+                
+                <h2>حاسبة المعدل</h2>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <a href="index.html" class="home-link"><svg class="home-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg><span>الرئيسية</span></a>
+            <button class="theme-toggle" type="button" onclick="toggleTheme()" aria-label="تبديل الوضع الداكن / الفاتح" title="الوضع الداكن / الفاتح">
+                <svg class="icon-moon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+                <svg class="icon-sun" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+            </button>
+        </div>
+
+    </header>
+
+
+    <!-- Main -->
+    <main class="tool-main">
+<section class="tool-card">
+<span class="tag">أداة</span>
+<h2>حاسبة المعدل</h2>
+<p class="tool-note">أدخل علامة كل مادة (من 100) وساعاتها، ويُحسب المعدل بحسب سلّم التقدير المعتمد (جدوله أدناه). المواد المحروم منها (Z) أو المنسحب منها (W) أو غير المكتملة (I) لا تدخلها في الحساب.</p>
+<div id="gpa-rows"></div>
+<div class="tool-actions"><button type="button" class="tool-btn light" id="gpa-add">+ إضافة مادة</button>
+<button type="button" class="tool-btn light" id="gpa-clear-grades">مسح الدرجات</button></div>
+</section>
+<section class="tool-card">
+<h2>معدلك السابق (للتراكمي)</h2>
+<p class="tool-note">اختياري: اتركه فارغاً إذا كان هذا فصلك الأول.</p>
+<div class="tool-fields">
+<label class="tool-field">الساعات المنجزة سابقاً<input type="number" id="prev-hours" min="0" placeholder="مثال: 60"></label>
+<label class="tool-field">المعدل التراكمي السابق (من 4)<input type="number" id="prev-gpa" min="0" max="4" step="0.01"></label>
+</div>
+<details><summary class="tool-note" style="cursor:pointer">سلّم التقدير المعتمد (العلامة، التقدير، النقاط)</summary><div id="gpa-scale"></div></details>
+<div class="tool-actions"><button type="button" class="tool-btn" id="gpa-calc">احسب المعدل</button>
+<button type="button" class="tool-btn light" id="gpa-clear">مسح الكل</button></div>
+<p class="tool-err" id="gpa-err" aria-live="polite"></p>
+</section>
+<section class="tool-card">
+<h2>النتيجة</h2>
+<p class="tool-note">النسبة المئوية محسوبة من المعدل النقطي بالتدرج بين حدود الجدول المعتمد (مثلاً 3.40 ← 88%). بياناتك محفوظة تلقائياً في هذا المتصفح. "مسح الدرجات" يفرّغ درجات الفصل ونتيجته فقط ويبقي التراكمي، و"مسح الكل" يمسح كل شيء.</p>
+<div class="tool-results">
+<div class="tool-res">المعدل الفصلي<b id="r-sem-gpa">-</b></div>
+<div class="tool-res">النسبة الفصلية<b id="r-sem-avg">-</b></div>
+<div class="tool-res">ساعات الفصل<b id="r-sem-h">-</b></div>
+<div class="tool-res">المعدل التراكمي<b id="r-cum-gpa">-</b></div>
+<div class="tool-res">النسبة التراكمية<b id="r-cum-avg">-</b></div>
+<div class="tool-res">الساعات التراكمية<b id="r-cum-h">-</b></div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+    <footer>
+        <p> © 2026 | Designed, developed & crafted with passion by Eng. Yara & 
+Eng.joudy</p>
+    </footer>
+
+
+    <script src="script.js"></script>
+    <script src="tools.js"></script>
+</body>
+</html>
