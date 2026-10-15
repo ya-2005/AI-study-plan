@@ -4,6 +4,10 @@
   var $ = function (id) { return document.getElementById(id); };
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
   function norm(s) { return String(s || "").replace(/\s+/g, " ").trim(); }
+  /* مفتاح المطابقة: يتجاهل اختلاف كتابة الاسم بين التخصصات (الفيزياء 1 = فيزياء 1، الدارات الإلكترونية = دارات إلكترونية) */
+  function ckey(s) {
+    return norm(s).replace(/^ال(?=فيزياء)/, "").replace(/^الدارات الإلكترونية/, "دارات إلكترونية").replace(/\s*و\s+أجهزته/, " وأجهزته");
+  }
 
   /* ---------------- حاسبة المعدل ---------------- */
   /* سلّم التقدير الرسمي (min = الحد الأدنى للعلامة، pts = النقاط، l = التقدير الحرفي) */
@@ -172,7 +176,7 @@
     plan.curriculum.forEach(function (y) {
       (y.semesters || []).forEach(function (s) {
         (s.courses || []).forEach(function (c) {
-          var k = norm(c);
+          var k = ckey(c);
           if (!map.has(k)) map.set(k, y.year + " - " + s.name);
         });
       });
@@ -186,12 +190,70 @@
     items.forEach(function (it) { var li = el("li"); li.appendChild(el("span", "", it[0])); li.appendChild(el("small", "", it[1])); ul.appendChild(li); });
   }
 
+  /* قائمة اختيار مخصصة فوق <select> (يبقى الـselect مخفيًا ويحمل القيمة) */
+  var csAll = [];
+  function enhanceSelect(sel) {
+    var wrap = el("div", "cs");
+    var btn = el("button", "cs-btn"); btn.type = "button";
+    btn.setAttribute("aria-haspopup", "listbox"); btn.setAttribute("aria-expanded", "false");
+    var txt = el("span", "cs-txt"), arrow = el("span", "cs-arrow"); arrow.setAttribute("aria-hidden", "true");
+    btn.append(txt, arrow);
+    var list = el("ul", "cs-list"); list.setAttribute("role", "listbox"); list.tabIndex = -1;
+    var items = Array.prototype.map.call(sel.options, function (o) {
+      var li = el("li", "cs-opt", norm(o.value)); li.setAttribute("role", "option"); li.dataset.v = o.value;
+      list.appendChild(li); return li;
+    });
+    var act = -1;
+    function sync() {
+      txt.textContent = norm(sel.value);
+      items.forEach(function (li) { var on = li.dataset.v === sel.value; li.classList.toggle("on", on); li.setAttribute("aria-selected", on ? "true" : "false"); });
+    }
+    function mark(i) {
+      act = i;
+      items.forEach(function (li, k) { li.classList.toggle("act", k === i); });
+      if (items[i]) items[i].scrollIntoView({ block: "nearest" });
+    }
+    function isOpen() { return wrap.classList.contains("open"); }
+    function open() {
+      csAll.forEach(function (c) { if (c !== api) c.close(); });
+      wrap.classList.add("open"); btn.setAttribute("aria-expanded", "true");
+      mark(items.findIndex(function (li) { return li.dataset.v === sel.value; }));
+    }
+    function close() { wrap.classList.remove("open"); btn.setAttribute("aria-expanded", "false"); act = -1; }
+    function pick(i) {
+      if (!items[i]) return;
+      var changed = sel.value !== items[i].dataset.v;
+      sel.value = items[i].dataset.v; sync(); close();
+      if (changed) sel.dispatchEvent(new Event("change"));
+    }
+    btn.onclick = function () { isOpen() ? close() : open(); };
+    list.onclick = function (e) { var li = e.target.closest(".cs-opt"); if (li) pick(items.indexOf(li)); };
+    btn.onkeydown = function (e) {
+      var k = e.key;
+      if (k === "ArrowDown" || k === "ArrowUp") {
+        e.preventDefault();
+        if (!isOpen()) { open(); return; }
+        mark((act + (k === "ArrowDown" ? 1 : -1) + items.length) % items.length);
+      } else if (k === "Enter" || k === " ") {
+        if (isOpen()) { e.preventDefault(); pick(act); }
+      } else if (k === "Escape") { if (isOpen()) { e.preventDefault(); close(); } }
+      else if (k === "Tab") close();
+    };
+    document.addEventListener("click", function (e) { if (!wrap.contains(e.target)) close(); });
+    wrap.append(btn, list);
+    sel.classList.add("cs-native"); sel.tabIndex = -1; sel.setAttribute("aria-hidden", "true");
+    sel.parentNode.insertBefore(wrap, sel.nextSibling);
+    var api = { close: close };
+    csAll.push(api); sync();
+  }
+
   function initCompare() {
     var a = $("cmp-a"), b = $("cmp-b");
     if (!a || !b) return;
     MAJORS.forEach(function (m, i) {
       [a, b].forEach(function (s, j) { var o = el("option", "", norm(m)); o.value = m; if (i === j) o.selected = true; s.appendChild(o); });
     });
+    enhanceSelect(a); enhanceSelect(b);
     function render() {
       var err = $("cmp-err"); err.textContent = "";
       if (a.value === b.value) { err.textContent = "اختر تخصصين مختلفين."; $("cmp-out").style.display = "none"; return; }
