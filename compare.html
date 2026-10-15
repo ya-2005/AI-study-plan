@@ -7,7 +7,7 @@
 <script>
 /* مفتاح إغلاق الموقع: true = مقفل | false = شغّال */
 (function () {
-  var CLOSED = true;
+  var CLOSED = false;
   if (!CLOSED) return;
   document.open();
   document.write(
@@ -30,7 +30,9 @@
     <link rel="stylesheet" href="style1.css">
     <link rel="stylesheet" href="tools.css">
 
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap" rel="stylesheet">
     <script>
         try {
             if (localStorage.getItem("theme") === "dark") {
