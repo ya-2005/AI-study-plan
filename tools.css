@@ -45,3 +45,50 @@
 .wn-box::-webkit-scrollbar-track{background:transparent;margin:14px 0}
 .wn-box::-webkit-scrollbar-thumb{background:#C5CFE6;border-radius:6px}
 @media (max-width:480px){.wn-box{padding:18px}.wn-box h2{font-size:19px;margin:6px 0 10px}.wn-box ul{gap:8px;margin-bottom:12px}.wn-box li{padding:9px 12px;font-size:13px;line-height:1.7}.wn-actions .tool-btn{padding:8px 12px;font-size:14px;min-width:100px}.wn-help{margin-top:12px;padding:12px}}
+
+/* ===== صفحة مقارنة التخصصات: تنسيق محسّن ===== */
+.tool-card{font-family:inherit}
+.tool-card h2{color:#243B70;font-weight:800;margin-top:10px}
+.tool-field{font-weight:600;color:#243B70;gap:8px}
+.tool-fields{gap:16px;margin-bottom:6px}
+
+/* القائمة المخصصة */
+.cs-native{display:none!important}
+.cs{position:relative}
+.cs-btn{font:inherit;font-weight:600;font-size:14px;color:#243B70;width:100%;min-height:50px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:right;line-height:1.6;padding:10px 16px;background:#F8FAFE;border:1.5px solid #D5DCEA;border-radius:14px;cursor:pointer;transition:border-color .2s,box-shadow .2s,background .2s}
+.cs-btn:hover{border-color:#9AA9D3;background:#fff}
+.cs-btn:focus-visible,.cs.open .cs-btn{outline:none;border-color:#6C63D9;background:#fff;box-shadow:0 0 0 4px rgba(108,99,217,.15)}
+.cs-txt{flex:1;min-width:0}
+.cs-arrow{flex:none;width:22px;height:22px;border-radius:50%;background:#EEF2FA url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23304A86' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center/12px no-repeat;transition:transform .2s,background-color .2s}
+.cs.open .cs-arrow{transform:rotate(180deg);background-color:#E8E8FF}
+.cs-list{position:absolute;top:calc(100% + 8px);right:0;left:0;z-index:30;list-style:none;margin:0;padding:6px;background:#fff;border:1px solid #E2E8F0;border-radius:14px;box-shadow:0 18px 40px rgba(36,59,112,.16);max-height:288px;overflow:auto;opacity:0;visibility:hidden;transform:translateY(-6px);transition:opacity .15s,transform .15s,visibility .15s;scrollbar-width:thin;scrollbar-color:#C5CFE6 transparent}
+.cs.open .cs-list{opacity:1;visibility:visible;transform:none}
+.cs-opt{position:relative;padding:11px 14px;border-radius:10px;font-size:14px;line-height:1.6;color:#243B70;cursor:pointer;transition:background .12s}
+.cs-opt+.cs-opt{margin-top:2px}
+.cs-opt:hover,.cs-opt.act{background:#F1F4FB}
+.cs-opt.on{background:#E8E8FF;color:#4B42C0;font-weight:700;padding-left:38px}
+.cs-opt.on::after{content:"";position:absolute;left:14px;top:50%;width:14px;height:14px;transform:translateY(-50%);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234B42C0' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 5 5 9-10'/%3E%3C/svg%3E") center/contain no-repeat}
+.cs-list::-webkit-scrollbar{width:6px}
+.cs-list::-webkit-scrollbar-thumb{background:#C5CFE6;border-radius:6px}
+
+/* الإحصائيات */
+.cmp-stats{gap:10px;margin:4px 0 20px}
+.cmp-stats span{display:inline-flex;align-items:center;gap:8px;font-weight:600;padding:8px 16px;font-size:13px;border:1px solid transparent}
+.cmp-stats span::before{content:"";width:9px;height:9px;border-radius:50%;background:currentColor}
+.cmp-stats span:nth-child(1){background:#E7F6EE;color:#1F8A5B}
+.cmp-stats span:nth-child(2){background:#E9EEFA;color:#304A86}
+.cmp-stats span:nth-child(3){background:#EFEDFC;color:#6258D6}
+
+/* صناديق المواد */
+.cmp-cols{gap:16px;align-items:start}
+.cmp-box{background:#fff;border:1px solid #E2E8F0;border-radius:16px;padding:16px}
+.cmp-box h3{font-size:15px;font-weight:700;line-height:1.7;margin:0 0 12px;padding:0 12px 0 0;border-right:4px solid #304A86;color:#243B70}
+.cmp-cols .cmp-box:nth-child(2) h3{border-right-color:#6C63D9}
+.cmp-shared{margin-top:16px}
+.cmp-shared h3{border-right-color:#2E9E6B;margin-top:0!important}
+.cmp-box ul,.cmp-shared ul{gap:6px}
+.cmp-box li,.cmp-shared li{align-items:center;background:#F5F7FB;border:1px solid transparent;border-radius:10px;padding:9px 12px;line-height:1.6;transition:background .15s,border-color .15s}
+.cmp-box li:hover,.cmp-shared li:hover{background:#EEF2FA;border-color:#DCE3F3}
+.cmp-box li small,.cmp-shared li small{background:#fff;border:1px solid #E2E8F0;color:#5F6E8C;border-radius:999px;padding:2px 10px;font-size:11.5px;font-weight:600}
+.cmp-shared ul{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+@media(max-width:600px){.cmp-shared ul{grid-template-columns:1fr}.cs-btn{font-size:13.5px}.cmp-box{padding:14px}}
