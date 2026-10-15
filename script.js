@@ -1406,7 +1406,7 @@ const yearlyCurriculum = [
                     "الدارات المنطقية",
                     "الدارات الكهربائية 1",
                     "الإحصاء والاحتمالات",
-                    "الكيمياء الحيوية",
+                    "التحليل الرياضي 2",
                     "البرمجة 1"
                 ]
             }
@@ -1427,7 +1427,7 @@ const yearlyCurriculum = [
                     "بنيان الحواسيب 1",
                     "أساسيات قواعد البيانات",
                     "الخوارزميات وبنى المعطيات",
-                    "الفيزيولوجيا والتشريح"
+                    "مدخل إلى الإلكترونيات"
                 ]
             },
 
@@ -3663,7 +3663,7 @@ majorPlans[dataScienceMajor] = {
 
 /* =========================================================
    Communications major (same data-driven format as the others)
-   - the years are the existing yearlyCurriculum (unchanged)
+   - the years are yearlyCurriculum (fixed: removed biochemistry/physiology, added math 2 + intro electronics per the department map)
    - independent courses exclude anything already listed in the
      university / faculty required + elective requirement lists
 ========================================================= */
