@@ -1,0 +1,627 @@
+/* =========================================================
+   المساعد الذكي - التصميم (يعتمد على style1.css و tools.css)
+   ألوان الموقع: #243B70 (أزرق) / #6258D6 (بنفسجي)
+   ملاحظة: الوضع الداكن يعتمد على filter، لذلك نستخدم ألواناً فاتحة فقط.
+========================================================= */
+
+.ai-main { max-width: 960px; }
+.ai-main,
+.ai-main input,
+.ai-main select,
+.ai-main button { font-family: "Vazirmatn", Tahoma, Arial, sans-serif; }
+
+.tool-card[hidden],
+.ai-courses [hidden] { display: none !important; }
+
+.ai-intro h2 { font-size: 24px; line-height: 1.6; }
+
+/* عناوين الأقسام مع رقم الخطوة */
+.tool-card h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    line-height: 1.6;
+}
+
+.ai-step {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: #E8E8FF;
+    color: #6258D6;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+/* =====================================================
+   الحقول
+===================================================== */
+
+.ai-fields {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 14px;
+}
+
+.ai-field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+.ai-span-2 { grid-column: span 2; }
+.ai-span-all { grid-column: 1 / -1; }
+
+.ai-field label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #243B70;
+}
+
+.ai-input,
+.ai-search {
+    font: inherit;
+    font-size: 15px;
+    width: 100%;
+    min-height: 46px;
+    padding: 10px 14px;
+    color: #243B70;
+    background: #F8FAFD;
+    border: 1px solid #DCE4F0;
+    border-radius: 12px;
+    outline: none;
+    transition: border-color .2s, background .2s, box-shadow .2s;
+}
+
+.ai-input[readonly] {
+    background: #F1F4FA;
+    font-weight: 700;
+    cursor: default;
+    text-overflow: ellipsis;
+}
+
+.ai-input:disabled { opacity: .6; cursor: not-allowed; }
+select#ai-major { font-weight: 700; }
+
+select.ai-input {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-inline-end: 38px;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23243B70' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: left 14px center;
+    white-space: normal;
+}
+
+.ai-input:focus,
+.ai-search:focus {
+    background-color: #fff;
+    border-color: #746BE3;
+    box-shadow: 0 0 0 4px rgba(108, 99, 217, .14);
+}
+
+.ai-search { margin-bottom: 12px; }
+
+.ai-help {
+    font-size: 12.5px;
+    line-height: 1.8;
+    color: #8290A8;
+}
+
+/* =====================================================
+   رسائل التنبيه (موحّدة الشكل)
+===================================================== */
+
+.ai-msgs { margin-bottom: 18px; display: flex; flex-direction: column; gap: 10px; }
+.ai-msgs:empty { display: none; }
+
+.ai-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 13px 16px;
+    border-radius: 14px;
+    border: 1px solid transparent;
+    font-size: 14px;
+    line-height: 1.9;
+}
+
+.ai-alert-icon {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    margin-top: 1px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .75);
+}
+
+.ai-alert-body { flex: 1; min-width: 0; }
+.ai-alert-title { display: block; font-weight: 700; margin-bottom: 1px; }
+.ai-alert-text { display: block; }
+.ai-alert a { color: inherit; font-weight: 700; text-decoration: underline; }
+
+.ai-alert-error,
+.ai-alert-danger { background: #FFF1F0; border-color: #F7CFCB; color: #A8261D; }
+.ai-alert-warn { background: #FFF8E6; border-color: #F3DFA6; color: #7A5200; }
+.ai-alert-info { background: #EEF3FF; border-color: #D3DEF7; color: #243B70; }
+.ai-alert-success { background: #EAF7EF; border-color: #BFE3CC; color: #1E6B3A; }
+
+.ai-advice { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+.ai-advice:empty { display: none; }
+
+.ai-footnote {
+    margin-top: 14px;
+    font-size: 12.5px;
+    line-height: 1.9;
+    color: #8290A8;
+}
+
+.ai-info-line { margin: 0 0 12px; }
+
+/* =====================================================
+   قائمة المواد المنجزة
+===================================================== */
+
+.ai-done-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.ai-done-count {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: #E8E8FF;
+    color: #4B42B8;
+    font-size: 13.5px;
+    font-weight: 700;
+}
+
+.ai-done-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-height: 460px;
+    overflow: auto;
+    padding: 4px 4px 4px 8px;
+    scrollbar-width: thin;
+    scrollbar-color: #C5CFE6 transparent;
+}
+
+.ai-group[hidden] { display: none !important; }
+
+.ai-term-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed #DCE4F0;
+}
+
+.ai-term-title {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #6258D6;
+    line-height: 1.6;
+}
+
+.ai-term-btn {
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 12px;
+    color: #243B70;
+    background: #F1F4FA;
+    border: 1px solid #DCE4F0;
+    border-radius: 999px;
+    transition: .2s;
+}
+.ai-term-btn:hover { background: #E8E8FF; border-color: #746BE3; }
+
+.ai-check {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    font-size: 14px;
+    line-height: 1.7;
+    background: #F8FAFD;
+    border: 1px solid #E5EAF2;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: .2s;
+}
+.ai-check[hidden] { display: none !important; }
+.ai-check:hover { border-color: #746BE3; }
+.ai-check:has(input:checked) { background: #E8F7EE; border-color: #A8DDBB; }
+.ai-check input { width: 18px; height: 18px; flex-shrink: 0; accent-color: #1E8A4C; cursor: pointer; }
+.ai-check span { flex: 1; min-width: 0; }
+.ai-check small { flex-shrink: 0; color: #8290A8; font-size: 12.5px; white-space: nowrap; }
+.ai-check input:focus-visible,
+.ai-term-btn:focus-visible { outline: 2px solid #6C63D9; outline-offset: 2px; }
+
+.ai-empty {
+    text-align: center;
+    padding: 22px 16px;
+    font-size: 14px;
+    line-height: 1.9;
+    color: #5B6B8A;
+    background: #F5F7FB;
+    border: 1px dashed #C5CFE6;
+    border-radius: 14px;
+}
+
+.ai-main-actions { margin-top: 16px; }
+.ai-main-actions .tool-btn { min-height: 46px; padding: 0 22px; font-size: 15px; }
+.ai-main-actions #ai-run { min-width: 220px; }
+.tool-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* =====================================================
+   الملخص
+===================================================== */
+
+.ai-stats { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); margin-top: 10px; }
+.ai-stats .tool-res { font-size: 13px; color: #5B6B8A; line-height: 1.7; }
+.ai-stats .tool-res b { color: #243B70; font-size: 24px; margin-top: 6px; }
+.ai-stats .tool-res small { display: block; margin-top: 2px; font-size: 12px; color: #8290A8; }
+
+.ai-balance { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 18px; }
+.ai-balance span {
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #243B70;
+    background: #EEF2FA;
+    border-radius: 999px;
+}
+
+/* =====================================================
+   بطاقات المواد
+===================================================== */
+
+.ai-courses { display: flex; flex-direction: column; gap: 12px; }
+
+.ai-course {
+    padding: 16px;
+    background: #F8FAFD;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+}
+
+.ai-course.is-pick { border-right: 5px solid #6258D6; background: #FCFCFF; }
+.ai-course.locked { background: #FAFBFD; }
+
+.ai-course-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ai-rank {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #fff;
+    background: #243B70;
+    border-radius: 11px;
+}
+.ai-course.locked .ai-rank { background: #B8C2D8; }
+
+.ai-title { flex: 1; min-width: 0; }
+.ai-title h3 { font-size: 16px; line-height: 1.6; margin: 0; color: #243B70; word-break: break-word; }
+.ai-meta { font-size: 12.5px; color: #8290A8; margin-top: 2px; line-height: 1.7; }
+
+.ai-hours {
+    flex-shrink: 0;
+    padding: 5px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    color: #243B70;
+    background: #EEF2FA;
+    border-radius: 999px;
+}
+
+/* بنود السبب */
+.ai-rows {
+    list-style: none;
+    margin: 14px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ai-row {
+    display: grid;
+    grid-template-columns: 128px 1fr;
+    gap: 12px;
+    align-items: start;
+    font-size: 14px;
+    line-height: 1.9;
+    color: #4A5B7C;
+}
+
+.ai-row-label {
+    justify-self: start;
+    padding: 2px 12px;
+    font-size: 12.5px;
+    font-weight: 700;
+    line-height: 1.9;
+    border-radius: 999px;
+    background: #EEF2FA;
+    color: #243B70;
+    text-align: center;
+}
+
+.ai-row.tone-danger .ai-row-label { background: #FDECEA; color: #B3261E; }
+.ai-row.tone-hot .ai-row-label { background: #E8E8FF; color: #4B42B8; }
+.ai-row.tone-good .ai-row-label { background: #E3F6EA; color: #15803D; }
+.ai-row.tone-warn .ai-row-label { background: #FFF1DD; color: #9A5B00; }
+.ai-row.tone-muted .ai-row-label { background: #F1F4FA; color: #6B7A99; }
+
+.ai-row-body p { margin: 0; }
+.ai-row-body p + .ai-pills { margin-top: 8px; }
+
+.ai-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.ai-pill {
+    padding: 3px 12px;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #243B70;
+    background: #fff;
+    border: 1px solid #D9E0F0;
+    border-radius: 999px;
+}
+.ai-pill.more { color: #8290A8; border-style: dashed; }
+
+.ai-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.ai-badge {
+    padding: 3px 11px;
+    font-size: 12px;
+    font-weight: 600;
+    background: #EEF2FA;
+    color: #243B70;
+    border-radius: 999px;
+}
+.ai-badge.hot { background: #E8E8FF; color: #4B42B8; }
+.ai-badge.term { background: #E3F6EA; color: #15803D; }
+.ai-badge.heavy { background: #FFF1DD; color: #9A5B00; }
+.ai-badge.light { background: #E3F1FB; color: #0F5E8C; }
+.ai-badge.crit { background: #FDECEA; color: #B3261E; }
+.ai-badge.pick { background: #243B70; color: #fff; }
+
+.ai-whynot {
+    margin-top: 12px;
+    padding: 9px 13px;
+    font-size: 13px;
+    line-height: 1.9;
+    color: #6B7A99;
+    background: #F1F4FA;
+    border-radius: 10px;
+}
+
+/* =====================================================
+   النافذة المنبثقة (تأكيد المسح)
+===================================================== */
+
+.ai-dialog-actions { display: flex; gap: 10px; }
+.ai-dialog-actions .app-dialog-btn { flex: 1; width: auto; }
+.ai-dialog-actions .app-dialog-btn.ghost { color: #243B70; background: #EEF2FA; }
+.ai-dialog-actions .app-dialog-btn.danger { background: #C23A2F; }
+.ai-dialog-actions .app-dialog-btn.danger:hover { background: #A8261D; }
+
+/* =====================================================
+   قائمة اختيار التخصص (فوق select مخفي، بأنماط .cs من tools.css)
+===================================================== */
+
+.ai-dd .cs-btn {
+    min-height: 50px;
+    padding: 10px 16px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    border: 1px solid #DCE4F0;
+    border-radius: 12px;
+    background: #F8FAFD;
+}
+.ai-dd .cs-btn:hover { border-color: #B7C3DE; background: #fff; }
+.ai-dd.open .cs-btn,
+.ai-dd .cs-btn:focus-visible {
+    border-color: #746BE3;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(108, 99, 217, .14);
+}
+.ai-dd.ph .cs-txt { color: #8290A8; font-weight: 500; }
+.ai-dd .cs-txt { line-height: 1.7; }
+
+.ai-dd .cs-list {
+    top: calc(100% + 10px);
+    max-height: min(340px, 60vh);
+    padding: 8px;
+    border-radius: 16px;
+    border-color: #DCE4F0;
+    box-shadow: 0 22px 48px rgba(36, 59, 112, .18);
+}
+.ai-dd .cs-opt {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    font-size: 14.5px;
+    font-weight: 600;
+    line-height: 1.7;
+    border-radius: 12px;
+}
+.ai-dd .cs-opt::before {
+    content: "";
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #C5CFE6;
+    transition: background .15s, transform .15s;
+}
+.ai-dd .cs-opt:hover::before,
+.ai-dd .cs-opt.act::before { background: #8E86E8; }
+.ai-dd .cs-opt.on { padding-left: 40px; }
+.ai-dd .cs-opt.on::before { background: #6258D6; transform: scale(1.25); }
+
+/* =====================================================
+   الجوال
+===================================================== */
+
+@media (max-width: 720px) {
+    .ai-fields { grid-template-columns: 1fr 1fr; }
+    .ai-span-2 { grid-column: 1 / -1; }
+}
+
+@media (max-width: 600px) {
+    .ai-main { padding: 0 12px; }
+    .ai-intro h2 { font-size: 21px; }
+    .tool-card { padding: 18px; }
+    .ai-course { padding: 14px; }
+    .ai-course-head { flex-wrap: wrap; }
+    .ai-title { flex-basis: calc(100% - 100px); }
+    .ai-hours { margin-inline-start: 48px; }
+    .ai-row { grid-template-columns: 1fr; gap: 4px; }
+    .ai-main-actions .tool-btn { flex: 1; min-width: 0; }
+    .ai-main-actions #ai-run { min-width: 0; flex-basis: 100%; }
+    .ai-done-list { max-height: 400px; }
+    .ai-check { padding: 9px 10px; gap: 10px; }
+}
+
+@media (max-width: 380px) {
+    .ai-fields { grid-template-columns: 1fr; }
+}
+
+/* حالة المتطلبات في بطاقة المادة المقفلة */
+.ai-pill.ok { background: #E3F6EA; border-color: #A8DDBB; color: #15803D; }
+.ai-pill.no { background: #FFF1F0; border-color: #F7CFCB; color: #A8261D; }
+
+/* =====================================================
+   خلاصة السبب + مسار التسلسل + أسطر الشركاء
+===================================================== */
+
+.ai-verdict {
+    margin-top: 14px;
+    padding: 11px 14px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.9;
+}
+.ai-verdict-label { display: block; font-size: 13px; font-weight: 800; margin-bottom: 1px; }
+.ai-verdict p { margin: 0; }
+.ai-verdict.tone-danger { background: #FDECEA; border-color: #F5C6C2; color: #8F1D17; }
+.ai-verdict.tone-hot    { background: #EEEEFF; border-color: #D5D2F7; color: #3B3499; }
+.ai-verdict.tone-good   { background: #E8F7EE; border-color: #BFE5CD; color: #116B33; }
+.ai-verdict.tone-warn   { background: #FFF4E3; border-color: #F3D9A8; color: #7A4A00; }
+.ai-verdict.tone-info   { background: #EEF3FF; border-color: #D3DEF7; color: #243B70; }
+
+.ai-path {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+}
+.ai-path-step {
+    padding: 3px 11px;
+    font-size: 12.5px;
+    line-height: 1.8;
+    color: #243B70;
+    background: #fff;
+    border: 1px solid #D9E0F0;
+    border-radius: 999px;
+}
+.ai-path-step.first { background: #243B70; border-color: #243B70; color: #fff; font-weight: 700; }
+.ai-path-step.gap { border-style: dashed; color: #8290A8; }
+.ai-path-arrow { color: #8A94B8; font-size: 14px; line-height: 1; }
+
+.ai-row-body p + p { margin-top: 6px; }
+.ai-row.tone-info .ai-row-label { background: #E3EEFB; color: #1F4E8C; }
+
+/* =====================================================
+   أقسام قابلة للطي (بدائل المواد المقترحة + المواد المقفلة)
+===================================================== */
+
+.ai-fold > summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    list-style: none;
+    font-size: 20px;
+    font-weight: 800;
+    color: #243B70;
+    padding: 2px 0;
+}
+.ai-fold > summary::-webkit-details-marker { display: none; }
+.ai-fold > summary::after {
+    content: "";
+    margin-right: auto;
+    width: 9px;
+    height: 9px;
+    border-left: 2.5px solid #8290A8;
+    border-bottom: 2.5px solid #8290A8;
+    transform: rotate(-45deg);
+    transition: transform .2s;
+    flex-shrink: 0;
+}
+.ai-fold[open] > summary::after { transform: rotate(-135deg); }
+.ai-fold > summary:focus-visible { outline: 2px solid #6C63D9; outline-offset: 4px; border-radius: 8px; }
+.ai-fold[open] > summary { margin-bottom: 8px; }
+.ai-fold-count { font-size: 15px; font-weight: 600; color: #8290A8; }
+
+/* =====================================================
+   الاختيار اليدوي
+===================================================== */
+
+.ai-swap-status { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.ai-swap-list { display: flex; flex-direction: column; gap: 6px; }
+
+.ai-swap-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 12px;
+    background: #F8FAFD;
+    border: 1px solid #E5EAF2;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: .2s;
+}
+.ai-swap-row:hover { border-color: #746BE3; }
+.ai-swap-row:has(input:checked) { background: #EEEEFF; border-color: #BDB8F2; }
+.ai-swap-row input { width: 18px; height: 18px; flex-shrink: 0; accent-color: #6258D6; cursor: pointer; }
+.ai-swap-row input:focus-visible { outline: 2px solid #6C63D9; outline-offset: 2px; }
+.ai-swap-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.ai-swap-main b { font-size: 14.5px; color: #243B70; }
+.ai-swap-row small { flex-shrink: 0; color: #5B6B8A; font-size: 13px; white-space: nowrap; }
+
+.ai-swap-tag { font-style: normal; font-size: 12.5px; font-weight: 600; }
+.ai-swap-tag.danger { color: #B3261E; }
+.ai-swap-tag.warn   { color: #8A5A00; }
+.ai-swap-tag.ok     { color: #1E6B3A; }
+
+@media (max-width: 520px) {
+    .ai-fold > summary { font-size: 17px; }
+    .ai-swap-row { padding: 10px; gap: 10px; }
+}
