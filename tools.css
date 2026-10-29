@@ -33,6 +33,7 @@
 .wn-box ul{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
 .wn-box li{background:#F5F7FB;border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.8}
 .wn-box li b{display:block}
+.wn-box li .wn-chip{display:flex;width:fit-content;align-items:center;gap:6px;margin:2px 0 6px;padding:2px 10px;border-radius:999px;background:#E3F6EA;border:1px solid #A8DDBB;color:#15803D;font-size:12px;font-weight:700;line-height:1.7}.wn-box li .wn-chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
 .wn-actions{display:flex;gap:8px;flex-wrap:wrap}
 .wn-actions a,.wn-actions button{text-decoration:none;text-align:center;flex:1;min-width:120px}
 
