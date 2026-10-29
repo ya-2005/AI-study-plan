@@ -2,12 +2,10 @@
    لإظهارها من جديد بعد تحديث قادم: غيّر VERSION (مثلاً v2) وعدّل القائمة. */
 (function () {
   "use strict";
-  var VERSION = "v3";
+  var VERSION = "v5";
   var KEY = "studyplan:whatsnew:" + VERSION;
   var ITEMS = [
-    ["حاسبة المعدل", "احسب معدلك الفصلي والتراكمي بحسب سلّم التقدير المعتمد.", "gpa.html"],
-    ["مقارنة بين تخصصين", "اعرض المواد المشتركة والمختلفة بين أي تخصصين جنباً إلى جنب.", "compare.html"],
-    ["تتبّع تقدمك الدراسي", "علّم المواد التي أنهيتها وتابع نسبة إنجازك، واطّلع على مسار أي مادة (ما قبلها وما بعدها)، وابحث عن أي مادة بالاسم. تجد ذلك في صفحة الخطة الدراسية بعد اختيار تخصصك."]
+    ["ما المواد التي أسجّلها هذا الفصل؟", "المساعد الذكي للتسجيل: يقترح عليك المواد المناسبة لفصلك بحسب خطتك الدراسية وما أنهيته من مواد، مع بيان سبب اختيار كل مادة.", "ai.html", "المساعد الذكي"]
   ];
 
   try { if (localStorage.getItem(KEY)) return; } catch (e) { /* التخزين غير متاح: نعرضها */ }
@@ -23,11 +21,13 @@
     var h = el("h2", "", "ما الجديد في الموقع"); h.id = "wn-title"; box.appendChild(h);
     var ul = el("ul");
     ITEMS.forEach(function (it) {
-      var li = el("li"); li.appendChild(el("b", "", it[0])); li.appendChild(document.createTextNode(it[1])); ul.appendChild(li);
+      var li = el("li"); li.appendChild(el("b", "", it[0]));
+      if (it[4]) { li.appendChild(el("span", "wn-chip", it[4])); }
+      li.appendChild(document.createTextNode(it[1])); ul.appendChild(li);
     });
     box.appendChild(ul);
     var act = el("div", "wn-actions");
-    ITEMS.forEach(function (it) { if (!it[2]) return; var a = el("a", "tool-btn", it[0]); a.href = it[2]; act.appendChild(a); });
+    ITEMS.forEach(function (it) { if (!it[2]) return; var a = el("a", "tool-btn", it[3] || it[0]); a.href = it[2]; act.appendChild(a); });
     var ok = el("button", "tool-btn light", "حسناً"); ok.type = "button"; act.appendChild(ok);
     box.appendChild(act);
     var help = el("div", "wn-help");
