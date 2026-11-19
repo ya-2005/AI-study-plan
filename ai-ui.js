@@ -24,6 +24,12 @@
 
     function clear(node) { while (node.firstChild) { node.removeChild(node.firstChild); } }
 
+    /* ---- اللغة: عربي / إنجليزي (من i18n.js) ---- */
+    function EN() { return !!(window.I18N && window.I18N.lang === "en"); }
+    function L(ar, en) { return EN() ? en : ar; }
+    function tr(n) { return EN() ? window.I18N.en(n) : n; }
+    function qn(n) { return EN() ? "\u201C" + tr(n) + "\u201D" : "\u00AB" + n + "\u00BB"; }
+
     /* بحث عربي متسامح: يتجاهل التشكيل والهمزات والتاء المربوطة */
     function key(s) {
         return String(s || "")
@@ -33,11 +39,12 @@
     }
 
     function hoursText(h, known) {
-        if (known === false) { return "ساعات غير محددة"; }
+        if (known === false) { return L("ساعات غير محددة", "Hours not specified"); }
         return PK.hoursWord(h);
     }
 
     function doneText(n) {
+        if (EN()) { return n === 0 ? "No completed courses" : n + (n === 1 ? " completed course" : " completed courses"); }
         if (n === 0) { return "لا مواد منجزة"; }
         if (n === 1) { return "مادة منجزة واحدة"; }
         if (n === 2) { return "مادتان منجزتان"; }
@@ -128,7 +135,7 @@
         box.appendChild(el("p", null, text));
 
         var actions = el("div", "ai-dialog-actions");
-        var cancel = el("button", "app-dialog-btn ghost", "إلغاء");
+        var cancel = el("button", "app-dialog-btn ghost", L("إلغاء", "Cancel"));
         cancel.type = "button";
         var ok = el("button", "app-dialog-btn danger", okLabel);
         ok.type = "button";
@@ -163,13 +170,13 @@
     ===================================================== */
 
     function termLabel(n) {
-        var label = "الفصل " + n;
+        var label = L("الفصل " + n, "Term " + n);
         var any = null;
         model.order.some(function (nm) {
             if (model.courses[nm].term === n) { any = model.courses[nm]; return true; }
             return false;
         });
-        if (any && any.year && any.semester) { label += " — " + any.year + "، " + any.semester; }
+        if (any && any.year && any.semester) { label += L(" — " + any.year + "، " + any.semester, " \u2014 " + tr(any.year) + ", " + tr(any.semester)); }
         return label;
     }
 
@@ -207,8 +214,8 @@
             wrap.setAttribute("data-group", String(g));
 
             var head = el("div", "ai-term-head");
-            head.appendChild(el("div", "ai-term-title", g === 0 ? "مواد اختيارية أو خارج الجدول" : termLabel(g)));
-            var btn = el("button", "ai-term-btn", "تحديد الكل");
+            head.appendChild(el("div", "ai-term-title", g === 0 ? L("مواد اختيارية أو خارج الجدول", "Elective courses / outside the schedule") : termLabel(g)));
+            var btn = el("button", "ai-term-btn", L("تحديد الكل", "Select all"));
             btn.type = "button";
             btn.setAttribute("data-group-btn", String(g));
             head.appendChild(btn);
@@ -217,12 +224,13 @@
             groups[g].forEach(function (c) {
                 var lab = el("label", "ai-check");
                 lab.setAttribute("data-key", key(c.name));
+                lab.setAttribute("data-en", String(window.I18N ? window.I18N.en(c.name) : c.name).toLowerCase());
                 var cb = document.createElement("input");
                 cb.type = "checkbox";
                 cb.setAttribute("data-name", c.name);
                 lab.appendChild(cb);
                 lab.appendChild(el("span", null, c.name));
-                lab.appendChild(el("small", null, c.hoursKnown ? hoursText(c.hours) : "ساعات غير محددة"));
+                lab.appendChild(el("small", null, hoursText(c.hours, !!c.hoursKnown)));
                 wrap.appendChild(lab);
             });
             els.list.appendChild(wrap);
@@ -241,7 +249,7 @@
             if (on) { count++; }
         }
         var res = ST.compute();
-        els.count.textContent = doneText(count) + " — " + (res ? res.doneHours : 0) + " ساعة من الخطة";
+        els.count.textContent = doneText(count) + " \u2014 " + (res ? res.doneHours : 0) + L(" ساعة من الخطة", " credit hours from the plan");
 
         /* أزرار الفصول: تحديد الكل / إلغاء الكل */
         var btns = els.list.querySelectorAll("[data-group-btn]");
@@ -249,20 +257,22 @@
             var g = parseInt(btns[j].getAttribute("data-group-btn"), 10);
             var names = groupCourses(g);
             var doneN = names.filter(function (n) { return set[n]; }).length;
-            btns[j].textContent = doneN === names.length ? "إلغاء الكل" : "تحديد الكل (" + doneN + "/" + names.length + ")";
+            btns[j].textContent = doneN === names.length ? L("إلغاء الكل", "Deselect all") : L("تحديد الكل (", "Select all (") + doneN + "/" + names.length + ")";
             btns[j].setAttribute("data-all", doneN === names.length ? "1" : "0");
         }
     }
 
     function applySearch() {
         var q = key(els.search.value);
+        var qe = String(els.search.value || "").trim().toLowerCase();
         var groups = els.list.querySelectorAll(".ai-group");
         var shownAny = false;
         for (var i = 0; i < groups.length; i++) {
             var labs = groups[i].querySelectorAll(".ai-check");
             var vis = 0;
             for (var j = 0; j < labs.length; j++) {
-                var show = !q || labs[j].getAttribute("data-key").indexOf(q) !== -1;
+                var show = !q || labs[j].getAttribute("data-key").indexOf(q) !== -1 ||
+                           (qe && (labs[j].getAttribute("data-en") || "").indexOf(qe) !== -1);
                 labs[j].hidden = !show;
                 if (show) { vis++; }
             }
@@ -271,7 +281,7 @@
         }
         var emptyMsg = els.list.querySelector(".ai-empty");
         if (!shownAny && !emptyMsg) {
-            els.list.appendChild(el("p", "ai-empty", "لا توجد مادة بهذا الاسم. جرّب كلمة أخرى."));
+            els.list.appendChild(el("p", "ai-empty", L("لا توجد مادة بهذا الاسم. جرّب كلمة أخرى.", "No course matches this name. Try another word.")));
         } else if (shownAny && emptyMsg) {
             emptyMsg.parentNode.removeChild(emptyMsg);
         }
@@ -282,9 +292,11 @@
         syncChecks();
         var diff = afterCount - beforeCount;
         if (diff > 1) {
-            setInfo("info", "أُضيفت " + PK.cnt(diff) + " إلى المنجز، منها المتطلبات السابقة تلقائياً، لأنه لا تُنجَز مادة دون متطلباتها.");
+            setInfo("info", L("أُضيفت " + PK.cnt(diff) + " إلى المنجز، منها المتطلبات السابقة تلقائياً، لأنه لا تُنجَز مادة دون متطلباتها.",
+                          PK.cnt(diff) + " added to completed, including prerequisites automatically, because a course can't be completed without its prerequisites."));
         } else if (diff < -1) {
-            setInfo("info", "أُلغيت " + PK.cnt(-diff) + "، منها مواد لاحقة كانت مبنية على المادة الملغاة.");
+            setInfo("info", L("أُلغيت " + PK.cnt(-diff) + "، منها مواد لاحقة كانت مبنية على المادة الملغاة.",
+                          PK.cnt(-diff) + " removed, including later courses that were built on the removed course."));
         } else {
             setInfo("info", "");
         }
@@ -318,13 +330,13 @@
         var mx = parseInt(els.max.value, 10);
         var ex = els.extra.value === "" ? 0 : parseInt(els.extra.value, 10);
         if (isNaN(mn) || isNaN(mx) || mn < 1 || mx < 1 || mn > 30 || mx > 30) {
-            return { error: ["بيانات الساعات غير صحيحة", "أدخل الحدّين الأدنى والأعلى للساعات بأرقام بين 1 و30."] };
+            return { error: [L("بيانات الساعات غير صحيحة", "Invalid hours"), L("أدخل الحدّين الأدنى والأعلى للساعات بأرقام بين 1 و30.", "Enter the minimum and maximum hours as numbers between 1 and 30.")] };
         }
         if (mn > mx) {
-            return { error: ["الحدّان متعارضان", "الحد الأدنى للساعات (" + mn + ") أكبر من الحد الأعلى (" + mx + ")، صحّح القيمتين."] };
+            return { error: [L("الحدّان متعارضان", "The limits conflict"), L("الحد الأدنى للساعات (" + mn + ") أكبر من الحد الأعلى (" + mx + ")، صحّح القيمتين.", "The minimum hours (" + mn + ") are greater than the maximum (" + mx + "). Please correct the two values.")] };
         }
         if (isNaN(ex) || ex < 0 || ex > 180) {
-            return { error: ["الساعات الإضافية غير صحيحة", "الساعات الإضافية المنجزة يجب أن تكون بين 0 و180."] };
+            return { error: [L("الساعات الإضافية غير صحيحة", "Invalid extra hours"), L("الساعات الإضافية المنجزة يجب أن تكون بين 0 و180.", "Extra completed hours must be between 0 and 180.")] };
         }
         return { min: mn, max: mx, extra: ex, term: parseInt(els.term.value, 10) || 1 };
     }
@@ -342,8 +354,8 @@
     function badge(text, cls) { return el("span", "ai-badge" + (cls ? " " + cls : ""), text); }
 
     function loadBadge(load) {
-        if (load === "heavy") { return badge("ثقيلة", "heavy"); }
-        if (load === "light") { return badge("خفيفة", "light"); }
+        if (load === "heavy") { return badge(L("ثقيلة", "Heavy"), "heavy"); }
+        if (load === "light") { return badge(L("خفيفة", "Light"), "light"); }
         return null;
     }
 
@@ -351,7 +363,7 @@
         var box = el("div", "ai-pills");
         names.slice(0, limit).forEach(function (n) { box.appendChild(el("span", "ai-pill", n)); });
         if (names.length > limit) {
-            box.appendChild(el("span", "ai-pill more", "+ " + (names.length - limit) + " أخرى"));
+            box.appendChild(el("span", "ai-pill more", "+ " + (names.length - limit) + L(" أخرى", " more")));
         }
         return box;
     }
@@ -427,8 +439,8 @@
 
     function metaFor(c, extra) {
         var parts = [];
-        if (c.term) { parts.push("الفصل " + c.term + (c.year ? " · " + c.year : "")); }
-        else { parts.push("اختيارية / خارج الجدول"); }
+        if (c.term) { parts.push(L("الفصل " + c.term + (c.year ? " · " + c.year : ""), "Term " + c.term + (c.year ? " \u00B7 " + tr(c.year) : ""))); }
+        else { parts.push(L("اختيارية / خارج الجدول", "Elective / outside the schedule")); }
         if (extra) { parts.push(extra); }
         return parts.join(" · ");
     }
@@ -448,11 +460,11 @@
         clear(els.summary);
         var crit = ranked.filter(function (e) { return e.critical; }).length;
 
-        els.summary.appendChild(statBox("ساعات المواد", sel.total, "حدّك " + inp.min + "–" + inp.max));
-        els.summary.appendChild(statBox("عدد المواد المقترحة", sel.picks.length));
-        els.summary.appendChild(statBox("ساعاتك المنجزة", res.totalHours,
-            inp.extra ? "منها " + inp.extra + " إضافية" : "من مواد الخطة"));
-        if (crit) { els.summary.appendChild(statBox("مواد لا يصح تأجيلها", crit, "تأجيلها يؤخّر تخرجك")); }
+        els.summary.appendChild(statBox(L("ساعات المواد", "Course hours"), sel.total, L("حدّك ", "Your limit ") + inp.min + "\u2013" + inp.max));
+        els.summary.appendChild(statBox(L("عدد المواد المقترحة", "Suggested courses"), sel.picks.length));
+        els.summary.appendChild(statBox(L("ساعاتك المنجزة", "Your completed hours"), res.totalHours,
+            inp.extra ? L("منها " + inp.extra + " إضافية", inp.extra + " of them extra") : L("من مواد الخطة", "from plan courses")));
+        if (crit) { els.summary.appendChild(statBox(L("مواد لا يصح تأجيلها", "Courses not to postpone"), crit, L("تأجيلها يؤخّر تخرجك", "Postponing them delays your graduation"))); }
     }
 
     function renderPicks(ranked, locked, sel) {
@@ -464,15 +476,16 @@
         if (!sel.picks.length) {
             var allDone = !ranked.length && !locked.length;
             els.picks.appendChild(allDone
-                ? alertBox("success", "ما شاء الله، أنهيت كل مواد الخطة", "لا توجد مواد متبقية لاقتراحها.")
-                : alertBox("warn", "لا توجد مواد متاحة لك الآن",
-                    ranked.length ? "تعذّر اقتراح مواد ضمن حدّي الساعات، عدّلهما وحاول مجدداً."
-                                  : "كل المواد المتبقية تنتظر متطلبات سابقة. راجع قسم «مواد غير متاحة لك الآن» أدناه، وتأكد أنك حدّدت كل ما أنهيته."));
+                ? alertBox("success", L("ما شاء الله، أنهيت كل مواد الخطة", "Congratulations, you've finished all the plan's courses"), L("لا توجد مواد متبقية لاقتراحها.", "There are no remaining courses to suggest."))
+                : alertBox("warn", L("لا توجد مواد متاحة لك الآن", "No courses are available to you right now"),
+                    ranked.length ? L("تعذّر اقتراح مواد ضمن حدّي الساعات، عدّلهما وحاول مجدداً.", "We couldn't suggest courses within your hour limits. Adjust them and try again.")
+                                  : L("كل المواد المتبقية تنتظر متطلبات سابقة. راجع قسم «مواد غير متاحة لك الآن» أدناه، وتأكد أنك حدّدت كل ما أنهيته.",
+                                      "All remaining courses are waiting on prerequisites. See the \u201CCourses not available to you yet\u201D section below, and make sure you've marked everything you've completed.")));
             return;
         }
 
-        [ "المجموع: " + hoursText(sel.total),
-          "عدد المواد: " + sel.picks.length ].forEach(function (t) { els.balance.appendChild(el("span", null, t)); });
+        [ L("المجموع: ", "Total: ") + hoursText(sel.total),
+          L("عدد المواد: ", "Courses: ") + sel.picks.length ].forEach(function (t) { els.balance.appendChild(el("span", null, t)); });
 
         sel.advice.forEach(function (a) { els.advice.appendChild(alertBox(a.tone, a.title, a.text)); });
 
@@ -510,44 +523,49 @@
         }
         var min = swapCtx.min, max = swapCtx.max;
 
-        function names(arr) { return arr.map(function (n) { return "«" + n + "»"; }).join("، "); }
+        function names(arr) { return arr.map(function (n) { return qn(n); }).join(L("، ", ", ")); }
 
         if (!count) {
-            els.swapStatus.appendChild(alertBox("info", "لم تختر أي مادة بعد", "حدّد المواد التي تريد تسجيلها لنخبرك بمدى مناسبتها."));
+            els.swapStatus.appendChild(alertBox("info", L("لم تختر أي مادة بعد", "You haven't chosen any course yet"), L("حدّد المواد التي تريد تسجيلها لنخبرك بمدى مناسبتها.", "Select the courses you want to register and we'll tell you how suitable they are.")));
             return;
         }
 
         /* 1) هل مجموع الساعات مناسب؟ */
-        var head = "اخترت " + PK.cnt(count) + " ومجموعها " + hoursText(total) + " (حدّك بين " + min + " و" + max + ").";
+        var head = L("اخترت " + PK.cnt(count) + " ومجموعها " + hoursText(total) + " (حدّك بين " + min + " و" + max + ").",
+                     "You chose " + PK.cnt(count) + " totaling " + hoursText(total) + " (your limit is between " + min + " and " + max + ").");
         if (total > max) {
-            els.swapStatus.appendChild(alertBox("warn", "المجموع أعلى من حدّك الأقصى", head + " ألغِ مواد بمجموع " + hoursWord(total - max) + " على الأقل."));
+            els.swapStatus.appendChild(alertBox("warn", L("المجموع أعلى من حدّك الأقصى", "The total is above your maximum"), head + L(" ألغِ مواد بمجموع " + hoursWord(total - max) + " على الأقل.", " Deselect courses totaling at least " + hoursWord(total - max) + ".")));
         } else if (total < min) {
-            els.swapStatus.appendChild(alertBox("warn", "المجموع أقل من حدّك الأدنى", head + " ينقصك " + hoursWord(min - total) + " على الأقل."));
+            els.swapStatus.appendChild(alertBox("warn", L("المجموع أقل من حدّك الأدنى", "The total is below your minimum"), head + L(" ينقصك " + hoursWord(min - total) + " على الأقل.", " You need at least " + hoursWord(min - total) + " more.")));
         } else {
-            els.swapStatus.appendChild(alertBox("success", "مجموع ساعاتك مناسب", head));
+            els.swapStatus.appendChild(alertBox("success", L("مجموع ساعاتك مناسب", "Your total hours are suitable"), head));
         }
 
         /* 2) هل تأجيل المواد غير المختارة يؤثر على التخرج؟ (تظهر الإجابة دائماً) */
         if (skippedCrit.length) {
-            els.swapStatus.appendChild(alertBox("danger", "تأجيل بعض المواد سيؤخّر تخرجك",
-                "لا يصح تأجيل: " + names(skippedCrit) + ". أضفها إلى اختيارك، أو استبدل بها مادة أخرى."));
+            els.swapStatus.appendChild(alertBox("danger", L("تأجيل بعض المواد سيؤخّر تخرجك", "Postponing some courses will delay your graduation"),
+                L("لا يصح تأجيل: " + names(skippedCrit) + ". أضفها إلى اختيارك، أو استبدل بها مادة أخرى.",
+                  "Don't postpone: " + names(skippedCrit) + ". Add them to your selection, or swap another course for them.")));
         } else if (skippedTight.length) {
-            els.swapStatus.appendChild(alertBox("warn", "يمكن تأجيل بعض المواد فصلاً واحداً فقط",
-                names(skippedTight) + ": إن أجّلتها فصلاً آخر بعد هذا الفصل فسيتأخر تخرجك."));
+            els.swapStatus.appendChild(alertBox("warn", L("يمكن تأجيل بعض المواد فصلاً واحداً فقط", "Some courses can be postponed one semester only"),
+                names(skippedTight) + L(": إن أجّلتها فصلاً آخر بعد هذا الفصل فسيتأخر تخرجك.", ": if you postpone them one more semester after this one, your graduation will be delayed.")));
         } else {
-            els.swapStatus.appendChild(alertBox("success", "تأجيل المواد التي لم تخترها لا يؤثر على تخرجك",
-                "لا توجد بين المواد غير المختارة مادة يؤخّر تأجيلها موعد تخرجك."));
+            els.swapStatus.appendChild(alertBox("success", L("تأجيل المواد التي لم تخترها لا يؤثر على تخرجك", "Postponing the courses you didn't choose won't affect your graduation"),
+                L("لا توجد بين المواد غير المختارة مادة يؤخّر تأجيلها موعد تخرجك.", "None of the unselected courses would delay your graduation if postponed.")));
         }
 
         /* 3) هل ستجد مواد كافية في الفصل القادم؟ */
         var fc = PK.forecast(swapCtx.ranked, chosenNames);
         if (fc.hours < min) {
-            els.swapStatus.appendChild(alertBox("warn", "قد لا تجد مواد كافية في الفصل القادم",
-                "إن نجحت في هذا الاختيار فستتاح لك مواد بمجموع " + hoursWord(fc.hours) + " فقط، وحدّك الأدنى " + min +
-                ". الأفضل أن يتضمن اختيارك مواد تُعدّ شرطاً لمواد لاحقة."));
+            els.swapStatus.appendChild(alertBox("warn", L("قد لا تجد مواد كافية في الفصل القادم", "You may not find enough courses next semester"),
+                L("إن نجحت في هذا الاختيار فستتاح لك مواد بمجموع " + hoursWord(fc.hours) + " فقط، وحدّك الأدنى " + min +
+                  ". الأفضل أن يتضمن اختيارك مواد تُعدّ شرطاً لمواد لاحقة.",
+                  "If you pass this selection, the courses available to you will total only " + hoursWord(fc.hours) + ", and your minimum is " + min +
+                  ". It's best to include courses that are prerequisites for later ones.")));
         } else {
-            els.swapStatus.appendChild(alertBox("info", "الفصل القادم",
-                "إن نجحت في هذا الاختيار فستتاح لك مواد بمجموع " + hoursWord(fc.hours) + "، وهو يكفي لفصل كامل."));
+            els.swapStatus.appendChild(alertBox("info", L("الفصل القادم", "Next semester"),
+                L("إن نجحت في هذا الاختيار فستتاح لك مواد بمجموع " + hoursWord(fc.hours) + "، وهو يكفي لفصل كامل.",
+                  "If you pass this selection, the courses available to you will total " + hoursWord(fc.hours) + ", which is enough for a full semester.")));
         }
     }
 
@@ -558,7 +576,7 @@
         clear(els.swapStatus);
         swapCtx = null;
         if (!ranked.length) {
-            els.all.appendChild(el("p", "ai-empty", "لا توجد مواد متاحة لك حالياً."));
+            els.all.appendChild(el("p", "ai-empty", L("لا توجد مواد متاحة لك حالياً.", "No courses are available to you right now.")));
             return;
         }
         var chosen = {};
@@ -601,7 +619,7 @@
         clear(els.locked);
         els.lockedCount.textContent = locked.length ? "(" + locked.length + ")" : "";
         if (!locked.length) {
-            els.locked.appendChild(alertBox("success", "لا توجد مواد مقفلة", "كل المواد المتبقية متاحة لك."));
+            els.locked.appendChild(alertBox("success", L("لا توجد مواد مقفلة", "No locked courses"), L("كل المواد المتبقية متاحة لك.", "All remaining courses are available to you.")));
             return;
         }
 
@@ -615,18 +633,19 @@
             var items = [];
             if (x.missing.length) {
                 items.push({
-                    kind: "missing", tone: "warn", label: "ينقصك إنجاز",
+                    kind: "missing", tone: "warn", label: L("ينقصك إنجاز", "Complete first"),
                     pills: x.missing.map(function (n) {
                         return availableSet[n]
-                            ? { text: n + " · متاحة لك الآن", cls: "ok" }
-                            : { text: n + " · غير متاحة بعد", cls: "no" };
+                            ? { text: tr(n) + L(" · متاحة لك الآن", " \u00B7 available now"), cls: "ok" }
+                            : { text: tr(n) + L(" · غير متاحة بعد", " \u00B7 not available yet"), cls: "no" };
                     })
                 });
             }
             if (x.hourShort) {
                 items.push({
-                    kind: "hours", tone: "warn", label: "ساعات ناقصة",
-                    text: "تحتاج " + PK.hoursWord(x.hourShort) + " منجزة إضافية (المادة تشترط أكثر من " + x.course.hourReq + " ساعة)."
+                    kind: "hours", tone: "warn", label: L("ساعات ناقصة", "Missing hours"),
+                    text: L("تحتاج " + PK.hoursWord(x.hourShort) + " منجزة إضافية (المادة تشترط أكثر من " + x.course.hourReq + " ساعة).",
+                            "You need " + PK.hoursWord(x.hourShort) + " more completed (the course requires more than " + x.course.hourReq + " credit hours).")
                 });
             }
             els.locked.appendChild(courseCard({
@@ -699,7 +718,7 @@
 
     function fillMajors() {
         clear(els.major);
-        var ph = el("option", null, "اختر تخصصك...");
+        var ph = el("option", null, L("اختر تخصصك...", "Choose your major..."));
         ph.value = "";
         els.major.appendChild(ph);
 
@@ -716,7 +735,7 @@
         /* قائمة اختيار التخصص: واجهة أنيقة فوق <select> (يبقى الـselect مخفياً ويحمل القيمة).
        تستعمل أنماط .cs من tools.css نفسها المستعملة في صفحة المقارنة. */
     var majorDD = null;
-    var PLACEHOLDER = "اختر تخصصك...";
+    function PLACEHOLDER() { return L("اختر تخصصك...", "Choose your major..."); }
 
     function enhanceMajor() {
         var sel = els.major;
@@ -762,7 +781,7 @@
         var act = -1;
 
         function sync() {
-            var label = PLACEHOLDER;
+            var label = PLACEHOLDER();
             items.forEach(function (li) {
                 var on = !!sel.value && li.dataset.v === sel.value;
                 li.classList.toggle("on", on);
@@ -874,13 +893,13 @@
             clear(els.term);
             els.count.textContent = "";
             els.list.appendChild(el("p", "ai-empty", !major
-                ? "اختر تخصصك من القائمة أعلاه لتظهر مواد الخطة هنا."
-                : "لا تتوفر بيانات لهذا التخصص."));
+                ? L("اختر تخصصك من القائمة أعلاه لتظهر مواد الخطة هنا.", "Choose your major from the list above to see the plan's courses here.")
+                : L("لا تتوفر بيانات لهذا التخصص.", "No data is available for this major.")));
             if (!major) {
-                putMsg("info", "اختر تخصصك للبدء", "حدّد تخصصك من قائمة «التخصص» أدناه، ثم حدّد المواد التي أنهيتها.");
+                putMsg("info", L("اختر تخصصك للبدء", "Choose your major to start"), L("حدّد تخصصك من قائمة «التخصص» أدناه، ثم حدّد المواد التي أنهيتها.", "Select your major from the \u201CMajor\u201D list below, then select the courses you've completed."));
             } else {
-                putMsg("error", "لا تتوفر بيانات متطلبات لهذا التخصص حالياً",
-                    "لا يمكن اقتراح مواد بدون خطة المتطلبات. اختر تخصصاً آخر من القائمة.");
+                putMsg("error", L("لا تتوفر بيانات متطلبات لهذا التخصص حالياً", "Prerequisite data isn't available for this major right now"),
+                    L("لا يمكن اقتراح مواد بدون خطة المتطلبات. اختر تخصصاً آخر من القائمة.", "Courses can't be suggested without the prerequisites plan. Choose another major from the list."));
             }
             return;
         }
@@ -919,7 +938,7 @@
             loadMajor();
             var n = Object.keys(ST.done()).length;
             if (n > 0) {
-                setInfo("info", "تم تحميل خطة هذا التخصص، واستُعيدت " + doneText(n) + " كنت قد حدّدتها له سابقاً.");
+                setInfo("info", L("تم تحميل خطة هذا التخصص، واستُعيدت " + doneText(n) + " كنت قد حدّدتها له سابقاً.", "This major's plan was loaded, and " + doneText(n) + " you had previously selected for it were restored."));
             }
         });
 
@@ -931,9 +950,10 @@
         els.run.addEventListener("click", function () { run(false); });
 
         els.reset.addEventListener("click", function () {
-            confirmDialog("مسح المواد المنجزة؟",
-                "سيُحذف كل ما حدّدته كمنجز لهذا التخصص، وسيتأثر أيضاً عرض صفحة الخطة. لا يمكن التراجع عن ذلك.",
-                "نعم، امسح", function () {
+            confirmDialog(L("مسح المواد المنجزة؟", "Clear completed courses?"),
+                L("سيُحذف كل ما حدّدته كمنجز لهذا التخصص، وسيتأثر أيضاً عرض صفحة الخطة. لا يمكن التراجع عن ذلك.",
+                  "Everything you marked as completed for this major will be deleted, and the plan page will be affected too. This can't be undone."),
+                L("نعم، امسح", "Yes, clear"), function () {
                     ST.clearDone();
                     syncChecks();
                     setInfo("info", "");
@@ -947,6 +967,19 @@
         });
 
         loadMajor();
+
+        /* تبديل اللغة: نعيد توليد النصوص المركّبة (الفصول، العدّادات، النتائج) بلغة الموقع الحالية */
+        document.addEventListener("langchange", function () {
+            clearMsg();
+            setInfo("info", "");
+            syncMajorDD();
+            if (!model) { loadMajor(); return; }
+            var termVal = els.term.value;
+            fillTerms();
+            els.term.value = termVal;
+            buildDoneList();
+            if (resultsShown) { run(true); }
+        });
     }
 
     if (document.readyState === "loading") {
