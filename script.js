@@ -168,6 +168,29 @@ const unknownHoursCommunications = [
     "الاتصالات النقالة واللاسلكية"
 ];
 
+/* المواد المشتركة بين جميع التخصصات: تظهر في الخريطة بلون واحد */
+const COMMON_COURSES = new Set([
+    "الإحصاء والاحتمالات",
+    "الإنكليزية للمهندسين",
+    "البرمجة 1",
+    "الفيزياء 2",
+    "بنيان الحواسيب 1",
+    "أساسيات قواعد البيانات",
+    "التحليل الرياضي 1",
+    "الجبر الخطي ونظرية المصفوفات",
+    "الخوارزميات وبنى المعطيات",
+    "الدارات الكهربائية 1",
+    "الدارات المنطقية",
+    "الرياضيات المتقطعة",
+    "الفيزياء 1",
+    "المعادلات التفاضلية والتحويلات",
+    "بنيان الحواسيب 2",
+    "تقانات إحصائية في علوم البيانات",
+    "مدخل إلى الخوارزميات والبرمجة",
+    "مدخل إلى الذكاء الاصطناعي",
+    "مدخل إلى تعلم الآلة"
+]);
+
 function getCourseHours(name) {
 
     let major = "";
@@ -209,6 +232,7 @@ function setCourseLabel(el, name) {
 
     el.textContent = "";
     el.dataset.course = name;
+    el.classList.toggle("common-course", COMMON_COURSES.has(String(name || "").trim()));
 
     const nameEl = document.createElement("span");
     nameEl.className = "course-name";
@@ -244,6 +268,7 @@ function selectMajor(name) {
 
     if (selectedName) {
         selectedName.textContent = name;
+        selectedName.dataset.major = name;
     }
 
     if (selectedBox) {
@@ -258,7 +283,7 @@ function selectMajor(name) {
 function explorePlan() {
     const selectedName = document.getElementById("selected-name");
     const name = selectedName
-        ? selectedName.textContent.trim()
+        ? (selectedName.dataset.major || selectedName.textContent).trim()
         : "";
 
     if (!name) {
@@ -1097,7 +1122,7 @@ function openCourseByName(name) {
 
             card.classList.toggle(
                 "active",
-                (card.dataset.course || card.textContent.trim()) === name
+                (card.dataset.course || (window.I18N ? I18N.orig(card) : card.textContent.trim())) === name
             );
         });
 
@@ -2934,6 +2959,7 @@ majorPlans[securityMajor] = {
     /* small text shown under the course name in the map:
        the courses that must be finished to open it */
     prereqs: {
+        "تطبيقات أمن المعلومات": "أساسيات أمن الحواسيب + إدارة الشبكات الحاسوبية",
         "نظرية الحوسبة": "البرمجة 1 + الرياضيات المتقطعة",
         "نظم التشغيل 1": "بنيان الحواسيب 1 + الخوارزميات وبنى المعطيات",
         "مدخل إلى الرؤية الحاسوبية": "معالجة الصور وتحليلها + مدخل إلى تعلم الآلة"
@@ -2972,7 +2998,7 @@ majorPlans[securityMajor] = {
 
     notes: {
         "تطبيقات أمن المعلومات":
-            "يجب إنجاز مقرر أساسيات أمن الحواسيب ومقرر شبكات الحاسوب بالإضافة إلى إنجاز أكثر من 70 ساعة.",
+            "يجب إنجاز مقرر أساسيات أمن الحواسيب ومقرر إدارة الشبكات الحاسوبية بالإضافة إلى إنجاز أكثر من 70 ساعة.",
         "مشروع فصلي أمن المعلومات":
             "يجب اجتياز مقرر تطبيقات أمن المعلومات بالإضافة إلى إنجاز أكثر من 100 ساعة.",
         "مشروع تخرج 2":
@@ -3354,7 +3380,7 @@ majorPlans[dataScienceMajor] = {
     /* small text shown under the course name in the map:
        the courses that must be finished to open it */
     prereqs: {
-        "نظرية الحوسبة": "البرمجة 2 + الرياضيات المتقطعة",
+        "نظرية الحوسبة": "البرمجة 1 + الرياضيات المتقطعة",
         "نظم التشغيل 1": "بنيان الحواسيب 1 + الخوارزميات وبنى المعطيات",
         "مدخل إلى الرؤية الحاسوبية": "معالجة الصور وتحليلها + مدخل إلى تعلم الآلة"
     },
