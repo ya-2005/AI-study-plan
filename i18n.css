@@ -1,0 +1,77 @@
+/* زر تبديل اللغة + ضبط بسيط للاتجاه الإنجليزي */
+.lang-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 12px;
+    border: 1px solid #DCE4F0;
+    background-color: #F8FAFD;
+    color: #243B70;
+    font: 700 14px/1 "Vazirmatn", "Cairo", Tahoma, Arial, sans-serif;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.lang-toggle:hover { background-color: #E9E8FF; border-color: #746BE3; }
+html.dark .lang-toggle { background-color: transparent; color: inherit; border-color: rgba(255,255,255,.25); }
+@media (pointer: coarse) { .lang-toggle { min-height: 44px; } }
+
+/* =====================================================
+   English (LTR) overrides — الصفحة الرئيسية
+   (النصوص التي كانت مثبّتة يميناً في التصميم العربي)
+===================================================== */
+html.lang-en .major-card,
+html.lang-en .major-option,
+html.lang-en .selected-major,
+html.lang-en .req-boxes,
+html.lang-en .req-header,
+html.lang-en .about-card,
+html.lang-en .about-option,
+html.lang-en .about-panel,
+html.lang-en .about-acc-head,
+html.lang-en .wn-box { text-align: left; }
+
+html.lang-en .about-list-items li { padding: 5px 0 5px 18px; }
+html.lang-en .about-list-items li::before { right: auto; left: 0; }
+
+/* =====================================================
+   English (LTR) overrides — صفحة الخطة الدراسية
+===================================================== */
+/* كلمات كانت مكتوبة داخل الـCSS */
+html.lang-en .sp-available::before { content: "Available"; }
+html.lang-en .sp-pre::after { content: "Before"; }
+html.lang-en .sp-next::after { content: "After"; }
+
+/* الخريطة والسنوات مرسومة من اليمين لليسار: نبقي اتجاه حاويتها كما هو
+   (حتى يبدأ التمرير من جذر الخريطة)، ونرجع النص داخل البطاقات لليسار-يمين */
+html.lang-en .map-container { direction: rtl; }
+html.lang-en .course-card,
+html.lang-en .year-course,
+html.lang-en .mini-course-card,
+html.lang-en .mindmap-node { direction: ltr; }
+
+/* البحث */
+html.lang-en .sp-search-input { text-align: left; padding: 14px 44px 14px 46px; }
+html.lang-en .sp-search-icon { right: auto; left: 16px; }
+html.lang-en .sp-search-clear { left: auto; right: 10px; }
+html.lang-en .sp-tools,
+html.lang-en .sp-done-name { text-align: left; }
+
+/* =====================================================
+   English (LTR) overrides — الأدوات (GPA / Compare)
+===================================================== */
+html.lang-en .cs-btn { text-align: left; }
+html.lang-en .cmp-box h3 { border-right: 0; border-left: 4px solid #304A86; padding-left: 10px; }
+html.lang-en .cmp-cols .cmp-box:nth-child(2) h3 { border-left-color: #6C63D9; }
+html.lang-en .cmp-shared h3 { border-left-color: #2E9E6B; }
+
+/* =====================================================
+   English (LTR) overrides — صفحة المساعد الذكي (ai.html)
+===================================================== */
+html.lang-en select.ai-input { background-position: right 14px center; }
+html.lang-en .ai-course.is-pick { border-right: 1px solid #E2E8F0; border-left: 5px solid #6258D6; }
+html.lang-en .ai-fold > summary::after { margin-right: 0; margin-left: auto; }
+html.lang-en .ai-dd .cs-opt.on { padding-left: 14px; padding-right: 40px; }
+html.lang-en .ai-dd .cs-opt.on::after { left: auto; right: 14px; }
