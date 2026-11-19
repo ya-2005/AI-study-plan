@@ -37,9 +37,15 @@
         return c.hoursKnown ? c.hours : ASSUMED_HOURS;
     }
 
-    /* ---------- صياغة عربية ---------- */
+    /* ---------- الصياغة (عربي / إنجليزي حسب لغة الموقع) ---------- */
+
+    function EN() { return !!(window.I18N && window.I18N.lang === "en"); }
+    function L(ar, en) { return EN() ? en : ar; }
+    function tr(n) { return EN() ? window.I18N.en(n) : n; }     /* اسم مادة/نص معروف -> الإنجليزي */
+    function plural(n, one, many) { return n + " " + (n === 1 ? one : many); }
 
     function cnt(n) {
+        if (EN()) { return plural(n, "course", "courses"); }
         if (n === 1) { return "مادة واحدة"; }
         if (n === 2) { return "مادتين"; }
         if (n >= 3 && n <= 10) { return n + " مواد"; }
@@ -47,10 +53,12 @@
     }
 
     function cntNom(n) {            /* للرفع: مادتان */
+        if (EN()) { return cnt(n); }
         return n === 2 ? "مادتان" : cnt(n);
     }
 
     function hoursWord(h) {
+        if (EN()) { return plural(h, "credit hour", "credit hours"); }
         if (h === 1) { return "ساعة واحدة"; }
         if (h === 2) { return "ساعتان"; }
         if (h >= 3 && h <= 10) { return h + " ساعات"; }
@@ -58,6 +66,7 @@
     }
 
     function semWord(n) {
+        if (EN()) { return plural(n, "semester", "semesters"); }
         if (n === 1) { return "فصل واحد"; }
         if (n === 2) { return "فصلان"; }
         if (n >= 3 && n <= 10) { return n + " فصول"; }
@@ -65,10 +74,12 @@
     }
 
     function seq(n) {               /* تسلسل من N: مادتين متتابعتين / 5 مواد متتابعة */
+        if (EN()) { return n + " consecutive courses"; }
         return n === 2 ? "مادتين متتابعتين" : cnt(n) + " متتابعة";
     }
 
     function semGen(n) {            /* بعد حرف جر: حتى فصلين */
+        if (EN()) { return plural(n, "semester", "semesters"); }
         if (n === 1) { return "فصل واحد"; }
         if (n === 2) { return "فصلين"; }
         if (n >= 3 && n <= 10) { return n + " فصول"; }
@@ -76,6 +87,7 @@
     }
 
     function extraSem(n) {          /* فصل إضافي واحد / فصلين إضافيين / 3 فصول إضافية */
+        if (EN()) { return plural(n, "extra semester", "extra semesters"); }
         if (n === 1) { return "فصل إضافي واحد"; }
         if (n === 2) { return "فصلين إضافيين"; }
         if (n >= 3 && n <= 10) { return n + " فصول إضافية"; }
@@ -83,17 +95,22 @@
     }
 
     function where(c) {
+        if (EN()) {
+            var e = "Term " + c.term;
+            if (c.year && c.semester) { e += " (" + tr(c.year) + ", " + tr(c.semester) + ")"; }
+            return e;
+        }
         var s = "الفصل " + c.term;
         if (c.year && c.semester) { s += " (" + c.year + "، " + c.semester + ")"; }
         return s;
     }
 
-    function q(n) { return "«" + n + "»"; }
+    function q(n) { return EN() ? "\u201C" + tr(n) + "\u201D" : "«" + n + "»"; }
 
     function listNames(arr, limit) {
         limit = limit || NAMES_SHOWN;
-        var s = arr.slice(0, limit).map(q).join("، ");
-        if (arr.length > limit) { s += " (+" + (arr.length - limit) + " أخرى)"; }
+        var s = arr.slice(0, limit).map(q).join(L("، ", ", "));
+        if (arr.length > limit) { s += L(" (+" + (arr.length - limit) + " أخرى)", " (+" + (arr.length - limit) + " more)"); }
         return s;
     }
 
@@ -170,35 +187,39 @@
     function brief(entry) {
         var d = entry.direct.length;
         if (entry.critical) {
-            return { tone: "danger", label: "لا يصح تأجيلها",
-                     text: "تأجيلها يؤخّر تخرجك، لذا يُنصح بتسجيلها في هذا الفصل." };
+            return { tone: "danger", label: L("لا يصح تأجيلها", "Don't postpone"),
+                     text: L("تأجيلها يؤخّر تخرجك، لذا يُنصح بتسجيلها في هذا الفصل.",
+                             "Postponing it delays your graduation, so it's recommended to register for it this semester.") };
         }
         if (d >= 1) {
-            var names = entry.direct.slice(0, 2).map(q).join(" و");
-            var more = d > 2 ? " وغيرهما" : "";
-            return { tone: "hot", label: "شرط لمواد لاحقة",
-                     text: "النجاح فيها شرط لتسجيل " + names + more + " في الفصول القادمة." };
+            var names = entry.direct.slice(0, 2).map(q).join(L(" و", " and "));
+            var more = d > 2 ? L(" وغيرهما", " and others") : "";
+            return { tone: "hot", label: L("شرط لمواد لاحقة", "Prerequisite for later courses"),
+                     text: L("النجاح فيها شرط لتسجيل " + names + more + " في الفصول القادمة.",
+                             "Passing it is required to register for " + names + more + " in upcoming semesters.") };
         }
         if (entry.group === 1) {
-            return { tone: "warn", label: "متأخرة عن خطتك",
-                     text: "فصلها في الخطة سابق لفصلك الحالي، وتسجيلها يعيدك إلى المسار الصحيح." };
+            return { tone: "warn", label: L("متأخرة عن خطتك", "Behind your plan"),
+                     text: L("فصلها في الخطة سابق لفصلك الحالي، وتسجيلها يعيدك إلى المسار الصحيح.",
+                             "Its term in the plan is before your current term, and registering for it puts you back on track.") };
         }
         if (entry.group === 0) {
-            return { tone: "good", label: "من خطة فصلك",
-                     text: "من مواد هذا الفصل في الخطة الدراسية." };
+            return { tone: "good", label: L("من خطة فصلك", "From your term's plan"),
+                     text: L("من مواد هذا الفصل في الخطة الدراسية.", "It's one of this term's courses in the study plan.") };
         }
-        return { tone: "info", label: "مادة مكمّلة", text: "تكمّل ساعاتك دون أن تعطّل مادة أخرى." };
+        return { tone: "info", label: L("مادة مكمّلة", "Complementary course"),
+                 text: L("تكمّل ساعاتك دون أن تعطّل مادة أخرى.", "It completes your hours without blocking another course.") };
     }
 
     /* هل يمكن تأجيل المادة؟ (للقائمة التي يختار منها الطالب بنفسه) */
     function postponeInfo(entry) {
         if (entry.critical) {
-            return { tone: "danger", text: "لا يصح تأجيلها: تأجيلها يؤخّر تخرجك" };
+            return { tone: "danger", text: L("لا يصح تأجيلها: تأجيلها يؤخّر تخرجك", "Don't postpone: postponing it delays your graduation") };
         }
         if (entry.depth > 1 && entry.slack === 1) {
-            return { tone: "warn", text: "يمكن تأجيلها فصلاً واحداً فقط" };
+            return { tone: "warn", text: L("يمكن تأجيلها فصلاً واحداً فقط", "Can be postponed one semester only") };
         }
-        return { tone: "ok", text: "يمكن تأجيلها دون تأخير التخرج" };
+        return { tone: "ok", text: L("يمكن تأجيلها دون تأخير التخرج", "Can be postponed without delaying graduation") };
     }
 
     function explain(entry, curTerm, totalHours, ctx) {
@@ -470,12 +491,14 @@
         });
         out.sort(function (a, b) { return a.add.length - b.add.length; });
         return out.slice(0, 1).map(function (o) {
-            var names = "«" + o.add.join("» و«") + "»";
+            var names = L("«" + o.add.join("» و«") + "»", o.add.map(q).join(" and "));
             return {
                 tone: "info",
-                title: "اقتراح لتسريع خطتك",
-                text: "يمكنك إضافة " + names + " إلى موادك دون تجاوز حدّك الأعلى (يصبح المجموع " + (total + o.addHours) +
-                      " ساعة)، وبذلك تستطيع تسجيل " + q(o.d) + " في الفصل القادم بدلاً من تأجيلها فصلاً."
+                title: L("اقتراح لتسريع خطتك", "A tip to speed up your plan"),
+                text: L("يمكنك إضافة " + names + " إلى موادك دون تجاوز حدّك الأعلى (يصبح المجموع " + (total + o.addHours) +
+                        " ساعة)، وبذلك تستطيع تسجيل " + q(o.d) + " في الفصل القادم بدلاً من تأجيلها فصلاً.",
+                        "You can add " + names + " to your courses without exceeding your maximum (the total becomes " + (total + o.addHours) +
+                        " credit hours), so you can register for " + q(o.d) + " next semester instead of postponing it by a semester.")
             };
         });
     }
@@ -495,10 +518,13 @@
         return gated.slice(0, 1).map(function (g) {
             return {
                 tone: "warn",
-                title: "شرط الساعات يؤخّر تسجيل " + q(g.c.name),
-                text: "ستكتمل متطلباتها السابقة بعد هذه المواد، لكنها تشترط إنجاز أكثر من " + g.c.hourReq +
-                      " ساعة، وساعاتك بعد هذه المواد " + ctx.afterHours + "، أي ينقصك " + hoursWord(g.short) +
-                      ". وتُحتسب المواد الإضافية (غير المذكورة في الخطة) في خانة «ساعات إضافية منجزة»."
+                title: L("شرط الساعات يؤخّر تسجيل " + q(g.c.name), "The hours requirement delays registering for " + q(g.c.name)),
+                text: L("ستكتمل متطلباتها السابقة بعد هذه المواد، لكنها تشترط إنجاز أكثر من " + g.c.hourReq +
+                        " ساعة، وساعاتك بعد هذه المواد " + ctx.afterHours + "، أي ينقصك " + hoursWord(g.short) +
+                        ". وتُحتسب المواد الإضافية (غير المذكورة في الخطة) في خانة «ساعات إضافية منجزة».",
+                        "Its prerequisites will be completed after these courses, but it requires more than " + g.c.hourReq +
+                        " completed credit hours, and your hours after these courses will be " + ctx.afterHours + ", so you are short by " +
+                        hoursWord(g.short) + ". Extra courses (not listed in the plan) count in the \u201CExtra completed hours\u201D field.")
             };
         });
     }
@@ -567,12 +593,16 @@
         /* 1) الساعات */
         if (belowMin) {
             advice.push(availableHours < min ? {
-                tone: "warn", title: "الساعات المتاحة لا تبلغ حدّك الأدنى",
-                text: "مجموع ساعات المواد المتاحة لك الآن " + availableHours + " ساعة وحدّك الأدنى " + min +
-                      "؛ لأن بعض المواد تنتظر متطلبات سابقة. خفّض الحد الأدنى، أو تأكد من تحديد كل المواد التي أنهيتها."
+                tone: "warn", title: L("الساعات المتاحة لا تبلغ حدّك الأدنى", "Available hours don't reach your minimum"),
+                text: L("مجموع ساعات المواد المتاحة لك الآن " + availableHours + " ساعة وحدّك الأدنى " + min +
+                        "؛ لأن بعض المواد تنتظر متطلبات سابقة. خفّض الحد الأدنى، أو تأكد من تحديد كل المواد التي أنهيتها.",
+                        "The courses available to you now total " + availableHours + " credit hours and your minimum is " + min +
+                        ", because some courses are waiting on prerequisites. Lower the minimum, or make sure you've marked every course you've completed.")
             } : {
-                tone: "warn", title: "تعذّر بلوغ الحد الأدنى للساعات",
-                text: "لم نجد توليفة تبلغ " + min + " ساعة دون تجاوز " + max + " بسبب توزيع ساعات المواد المتاحة. جرّب تعديل الحدّين."
+                tone: "warn", title: L("تعذّر بلوغ الحد الأدنى للساعات", "Couldn't reach the minimum hours"),
+                text: L("لم نجد توليفة تبلغ " + min + " ساعة دون تجاوز " + max + " بسبب توزيع ساعات المواد المتاحة. جرّب تعديل الحدّين.",
+                        "We couldn't find a combination that reaches " + min + " credit hours without exceeding " + max +
+                        ", because of how the available courses' hours are distributed. Try adjusting the two limits.")
             });
         }
 
@@ -581,9 +611,10 @@
         var critMissed = critAll.filter(function (e) { return !picked[e.course.name]; });
         if (critMissed.length) {
             advice.push({
-                tone: "danger", title: "مواد لا يصح تأجيلها لم تدخل ضمن المواد المقترحة",
+                tone: "danger", title: L("مواد لا يصح تأجيلها لم تدخل ضمن المواد المقترحة", "Courses you shouldn't postpone aren't in the suggested courses"),
                 text: listNames(critMissed.map(function (e) { return e.course.name; })) +
-                      ": تأجيلها يؤخّر تخرجك. ارفع الحد الأعلى للساعات، أو استبدل بها مادة أقل أهمية."
+                      L(": تأجيلها يؤخّر تخرجك. ارفع الحد الأعلى للساعات، أو استبدل بها مادة أقل أهمية.",
+                        ": postponing them delays your graduation. Raise the maximum hours, or swap a less important course for them.")
             });
         }
 
@@ -593,34 +624,45 @@
             if (g.need > 0) {
                 if (g.spare < 0) {
                     var why = g.byChain >= g.byHours
-                        ? "أطول سلسلة مواد متبقية تحتاج " + semWord(g.byChain) + " لأن كل مادة فيها تتطلب التي قبلها"
-                        : "المتبقي من الخطة " + g.pace.hours + " ساعة، وبحدّك الأعلى (" + max + ") تحتاج " + semWord(g.byHours);
+                        ? L("أطول سلسلة مواد متبقية تحتاج " + semWord(g.byChain) + " لأن كل مادة فيها تتطلب التي قبلها",
+                            "The longest remaining chain of courses needs " + semWord(g.byChain) + " because each course in it requires the one before it")
+                        : L("المتبقي من الخطة " + g.pace.hours + " ساعة، وبحدّك الأعلى (" + max + ") تحتاج " + semWord(g.byHours),
+                            "The rest of the plan is " + g.pace.hours + " credit hours, and with your maximum (" + max + ") you need " + semWord(g.byHours));
                     advice.push({
-                        tone: "danger", title: "من المتوقع أن يتأخر تخرجك",
-                        text: why + "، بينما المتبقي في خطتك " + semWord(g.remaining) + "؛ فستحتاج إلى " + extraSem(-g.spare) +
-                              " على الأقل. للحدّ من التأخر: سجّل الحد الأعلى من الساعات في كل فصل، وابدأ بالمواد التي لا يصح تأجيلها."
+                        tone: "danger", title: L("من المتوقع أن يتأخر تخرجك", "Your graduation is expected to be delayed"),
+                        text: L(why + "، بينما المتبقي في خطتك " + semWord(g.remaining) + "؛ فستحتاج إلى " + extraSem(-g.spare) +
+                                " على الأقل. للحدّ من التأخر: سجّل الحد الأعلى من الساعات في كل فصل، وابدأ بالمواد التي لا يصح تأجيلها.",
+                                why + ", while your plan has " + semWord(g.remaining) + " left, so you will need at least " + extraSem(-g.spare) +
+                                ". To limit the delay: register the maximum hours every semester, and start with the courses you shouldn't postpone.")
                     });
                 } else if (g.spare === 0) {
                     advice.push({
-                        tone: "warn", title: "تخرجك في موعده، لكن دون أي فصل احتياطي",
-                        text: "تحتاج " + semWord(g.need) + " على الأقل وقد بقي لك " + semWord(g.remaining) +
-                              "، أي أنه لا يوجد فصل زائد عن حاجتك. الرسوب في مادة مهمة أو تقليل ساعاتك في أي فصل سيؤخّر تخرجك."
+                        tone: "warn", title: L("تخرجك في موعده، لكن دون أي فصل احتياطي", "You're on track to graduate on time, but with no spare semester"),
+                        text: L("تحتاج " + semWord(g.need) + " على الأقل وقد بقي لك " + semWord(g.remaining) +
+                                "، أي أنه لا يوجد فصل زائد عن حاجتك. الرسوب في مادة مهمة أو تقليل ساعاتك في أي فصل سيؤخّر تخرجك.",
+                                "You need at least " + semWord(g.need) + " and you have " + semWord(g.remaining) +
+                                " left, so there is no spare semester. Failing an important course or reducing your hours in any semester will delay your graduation.")
                     });
                 } else {
                     advice.push({
-                        tone: "success", title: "تخرجك في موعده",
-                        text: "تحتاج " + semWord(g.need) + " على الأقل وقد بقي لك " + semWord(g.remaining) +
-                              "، أي أن لديك مجالاً لتأجيل المواد بمقدار " + semGen(g.spare) +
-                              " دون أن يتأخر تخرجك. ولا يزال الأفضل ألا تؤجّل المواد التي تفتح لك مواد لاحقة."
+                        tone: "success", title: L("تخرجك في موعده", "You're on track to graduate on time"),
+                        text: L("تحتاج " + semWord(g.need) + " على الأقل وقد بقي لك " + semWord(g.remaining) +
+                                "، أي أن لديك مجالاً لتأجيل المواد بمقدار " + semGen(g.spare) +
+                                " دون أن يتأخر تخرجك. ولا يزال الأفضل ألا تؤجّل المواد التي تفتح لك مواد لاحقة.",
+                                "You need at least " + semWord(g.need) + " and you have " + semWord(g.remaining) +
+                                " left, so you can postpone courses by up to " + semGen(g.spare) +
+                                " without delaying your graduation. It's still best not to postpone courses that unlock later courses.")
                     });
                 }
 
                 /* معدل الساعات (إن لم يكن التأخر محسوماً) */
                 if (g.spare >= 0 && g.pace.hours > 0 && total > 0 && g.pace.perTerm > total) {
                     advice.push({
-                        tone: g.spare === 0 ? "warn" : "info", title: "ساعاتك أقل من المعدل اللازم",
-                        text: "لإنهاء المتبقي (" + g.pace.hours + " ساعة) خلال " + semWord(g.pace.terms) + " تحتاج في المتوسط " +
-                              g.pace.perTerm + " ساعة في كل فصل، وساعاتك الآن " + total + " ساعة. رفع ساعاتك قدر المستطاع يمنحك مرونة أكبر لاحقاً."
+                        tone: g.spare === 0 ? "warn" : "info", title: L("ساعاتك أقل من المعدل اللازم", "Your hours are below the required pace"),
+                        text: L("لإنهاء المتبقي (" + g.pace.hours + " ساعة) خلال " + semWord(g.pace.terms) + " تحتاج في المتوسط " +
+                                g.pace.perTerm + " ساعة في كل فصل، وساعاتك الآن " + total + " ساعة. رفع ساعاتك قدر المستطاع يمنحك مرونة أكبر لاحقاً.",
+                                "To finish the remaining " + g.pace.hours + " credit hours within " + semWord(g.pace.terms) + " you need an average of " +
+                                g.pace.perTerm + " credit hours per semester, and your hours now are " + total + ". Raising your hours as much as you can gives you more flexibility later.")
                     });
                 }
             }
@@ -635,16 +677,21 @@
                 var better = ranked.filter(function (e) { return !picked[e.course.name] && e.direct.length > 0; })
                                    .slice(0, 2).map(function (e) { return e.course.name; });
                 advice.push({
-                    tone: "warn", title: "قد لا تجد مواد كافية في الفصل القادم",
-                    text: "إن نجحت في هذه المواد فستتاح لك في الفصل القادم مواد بمجموع " + fc.hours + " ساعة فقط، وحدّك الأدنى " + min + "." +
-                          (better.length ? " ولتفادي ذلك فكّر في استبدال إحدى المواد بـ " + better.map(q).join(" أو ") +
-                                          " لأنها شرط لمواد لاحقة." : "")
+                    tone: "warn", title: L("قد لا تجد مواد كافية في الفصل القادم", "You may not find enough courses next semester"),
+                    text: L("إن نجحت في هذه المواد فستتاح لك في الفصل القادم مواد بمجموع " + fc.hours + " ساعة فقط، وحدّك الأدنى " + min + "." +
+                            (better.length ? " ولتفادي ذلك فكّر في استبدال إحدى المواد بـ " + better.map(q).join(" أو ") +
+                                            " لأنها شرط لمواد لاحقة." : ""),
+                            "If you pass these courses, the courses available to you next semester will total only " + fc.hours + " credit hours, and your minimum is " + min + "." +
+                            (better.length ? " To avoid this, consider swapping one of the courses for " + better.map(q).join(" or ") +
+                                            ", since they are prerequisites for later courses." : ""))
                 });
             } else {
                 advice.push({
-                    tone: "success", title: "الفصل القادم مضمون نسبياً",
-                    text: "إن نجحت في هذه المواد فستتاح لك في الفصل القادم مواد بمجموع " + fc.hours +
-                          " ساعة، وهو يكفي لتسجيل فصل كامل."
+                    tone: "success", title: L("الفصل القادم مضمون نسبياً", "Next semester looks fairly safe"),
+                    text: L("إن نجحت في هذه المواد فستتاح لك في الفصل القادم مواد بمجموع " + fc.hours +
+                            " ساعة، وهو يكفي لتسجيل فصل كامل.",
+                            "If you pass these courses, the courses available to you next semester will total " + fc.hours +
+                            " credit hours, which is enough to register a full semester.")
                 });
             }
         }
@@ -654,11 +701,13 @@
                             .sort(function (a, b) { return b.entry.chain - a.entry.chain; }).slice(0, 2);
         if (keyPicks.length) {
             advice.push({
-                tone: "info", title: "مواد تستحق أكبر قدر من الاهتمام",
+                tone: "info", title: L("مواد تستحق أكبر قدر من الاهتمام", "Courses that deserve the most attention"),
                 text: keyPicks.map(function (p) {
-                          return q(p.course.name) + " (تعتمد عليها " + cnt(p.entry.chain) + " لاحقة)";
-                      }).join(" و") +
-                      ". الرسوب في إحداها يؤخّر المواد المبنية عليها فصلاً كاملاً على الأقل، فاجعلها أولوية في المذاكرة."
+                          return q(p.course.name) + L(" (تعتمد عليها " + cnt(p.entry.chain) + " لاحقة)",
+                                                      (p.entry.chain === 1 ? " (1 later course depends on it)" : " (" + p.entry.chain + " later courses depend on it)"));
+                      }).join(L(" و", " and ")) +
+                      L(". الرسوب في إحداها يؤخّر المواد المبنية عليها فصلاً كاملاً على الأقل، فاجعلها أولوية في المذاكرة.",
+                        ". Failing one of them delays the courses built on it by at least a full semester, so make them a study priority.")
             });
         }
 
@@ -674,24 +723,28 @@
         });
         if (lateMissed.length) {
             advice.push({
-                tone: "warn", title: "مواد متأخرة عن فصلك لم تدخل ضمن المواد المقترحة",
+                tone: "warn", title: L("مواد متأخرة عن فصلك لم تدخل ضمن المواد المقترحة", "Courses behind your current term aren't in the suggested courses"),
                 text: listNames(lateMissed.map(function (e) { return e.course.name; }), 3) +
-                      ". فصلها في الخطة سابق لفصلك الحالي، فاحرص على تعويضها في الفصول القادمة."
+                      L(". فصلها في الخطة سابق لفصلك الحالي، فاحرص على تعويضها في الفصول القادمة.",
+                        ". Their term in the plan is before your current term, so make sure to make them up in the coming semesters.")
             });
         }
 
         if (relaxed && !belowMin) {
             advice.push({
-                tone: "warn", title: "حمل دراسي مرتفع نسبياً",
-                text: "تعذّر بلوغ الحد الأدنى مع توزيع متوازن، فزاد عدد المواد الثقيلة. راجع وقتك قبل التسجيل."
+                tone: "warn", title: L("حمل دراسي مرتفع نسبياً", "Relatively heavy study load"),
+                text: L("تعذّر بلوغ الحد الأدنى مع توزيع متوازن، فزاد عدد المواد الثقيلة. راجع وقتك قبل التسجيل.",
+                        "We couldn't reach the minimum with a balanced distribution, so the number of heavy courses increased. Review your time before registering.")
             });
         }
 
         if (assumedCount > 0) {
             advice.push({
-                tone: "warn", title: "ساعات غير محددة في الخطة",
-                text: (assumedCount === 1 ? "ساعات إحدى المواد المقترحة" : "ساعات " + assumedCount + " من المواد المقترحة") +
-                      " غير محددة، وافترضنا " + ASSUMED_HOURS + " ساعات لكل منها. راجع ساعاتها الفعلية قبل التسجيل."
+                tone: "warn", title: L("ساعات غير محددة في الخطة", "Hours not specified in the plan"),
+                text: L((assumedCount === 1 ? "ساعات إحدى المواد المقترحة" : "ساعات " + assumedCount + " من المواد المقترحة") +
+                        " غير محددة، وافترضنا " + ASSUMED_HOURS + " ساعات لكل منها. راجع ساعاتها الفعلية قبل التسجيل.",
+                        (assumedCount === 1 ? "The hours of one of the suggested courses are" : "The hours of " + assumedCount + " of the suggested courses are") +
+                        " not specified, so we assumed " + ASSUMED_HOURS + " credit hours for each. Check their actual hours before registering.")
             });
         }
 
@@ -715,7 +768,7 @@
             excluded: excluded,
             opened: opened,
             advice: advice,
-            footnote: "الاقتراح مبني على متطلبات الخطة الدراسية. راجع مرشدك الأكاديمي قبل التسجيل."
+            footnote: L("الاقتراح مبني على متطلبات الخطة الدراسية. راجع مرشدك الأكاديمي قبل التسجيل.", "The suggestion is based on the study plan's prerequisites. Consult your academic advisor before registering.")
         };
     }
 
