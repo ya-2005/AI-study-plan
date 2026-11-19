@@ -13,10 +13,19 @@
   document.write(
     '<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8">' +
     '<meta name="viewport" content="width=device-width, initial-scale=1">' +
-    '<title>الموقع متوقف مؤقتًا</title></head>' +
+    '<title>الموقع متوقف مؤقتًا</title>' +
+    '<style>@keyframes sp-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}' +
+    '@keyframes sp-fade{0%,100%{opacity:.45}50%{opacity:1}}' +
+    '.sp-big{font-size:84px;line-height:1.1;animation:sp-bob 2.4s ease-in-out infinite}' +
+    '.sp-row{margin-top:14px;font-size:30px;letter-spacing:10px}' +
+    '.sp-row span{display:inline-block;animation:sp-fade 2s ease-in-out infinite}' +
+    '.sp-row span:nth-child(2){animation-delay:.4s}.sp-row span:nth-child(3){animation-delay:.8s}' +
+    '@media (prefers-reduced-motion:reduce){.sp-big,.sp-row span{animation:none}}</style></head>' +
     '<body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;' +
     'background:#F5F7FB;color:#243B70;font-family:Tahoma,Arial,sans-serif;text-align:center;padding:20px">' +
-    '<div><h1>الموقع متوقف مؤقتًا</h1><p>سيعود قريبًا إن شاء الله.</p></div>' +
+    '<div><div class="sp-big" aria-hidden="true">🚧</div>' +
+    '<div class="sp-row" aria-hidden="true"><span>🛠️</span><span>⏳</span><span>✨</span></div>' +
+    '<h1>الموقع متوقف مؤقتًا</h1><p>سيعود قريبًا .</p></div>' +
     '<' + '/body></' + 'html>'
   );
   document.close();
@@ -29,6 +38,10 @@
 
     <link rel="stylesheet" href="style1.css">
     <link rel="stylesheet" href="tools.css">
+    <link rel="stylesheet" href="i18n.css">
+    <script src="i18n-courses.js"></script>
+    <script src="i18n-ui.js"></script>
+    <script src="i18n.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
