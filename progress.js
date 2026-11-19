@@ -1551,7 +1551,7 @@
             });
 
             return ordered.map(function (n, i) {
-                return { name: n, key: norm(n), order: i };
+                return { name: n, key: norm(n) + " " + (window.I18N ? norm(I18N.en(n)) : ""), order: i };
             });
         })();
 
